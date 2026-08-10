@@ -85,7 +85,7 @@ async fn OpenCodeExec::run(
     environment["OPENCODE_CONFIG_CONTENT"] = config.to_json().stringify()
   }
   let inherit_environment = self.env_override is None
-  let result = @agent_cli.run_with_backend(
+  let result = @agent_cli.run(
     @agent_cli.Invocation::new(
       command=self.executable_path.to_string(),
       arguments=command_args,
@@ -93,7 +93,6 @@ async fn OpenCodeExec::run(
       inherit_environment~,
       input=args.input,
     ),
-    @agent_cli_native.backend(),
     on_event,
   ) catch {
     @agent_cli.AgentCliError::InvalidJson(line~, cause~) =>

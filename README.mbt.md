@@ -1,10 +1,19 @@
-# OpenCode SDK for MoonBit
+# MoonBit 向け OpenCode SDK
 
-Embed the OpenCode agent in MoonBit workflows and applications through the installed [`opencode run --format json`](https://dev.opencode.ai/docs/cli/) command.
+インストール済みの [`opencode run --format json`](https://dev.opencode.ai/docs/cli/) を通じて、MoonBit のワークフローとアプリケーションに OpenCode agent を組み込みます。
 
-The public client shape intentionally follows `totto2727/codex-sdk`: create an `OpenCode` client, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
+公開クライアントの形は意図的に `totto2727/codex-sdk` に合わせています。`OpenCode` client を作成して `Thread` を開始または再開し、`run` か `run_streamed` を呼び出します。CLI 間で wire protocol は共有しないため、provider 固有の option と event は OpenCode 固有のままです。
 
-## Usage
+```mermaid
+flowchart LR
+  Client[OpenCode client] --> Thread[start or resume Thread]
+  Thread --> Run[opencode run --format json]
+  Run --> Core[agent-core-sdk/cli]
+  Core --> Events[typed OpenCode JSONL events]
+  Server[opencode-sdk/server] --> Serve[opencode serve lifecycle]
+```
+
+## 使い方
 
 ```mbt check
 ///|
@@ -22,7 +31,7 @@ async fn example {
 }
 ```
 
-Add the CLI package to a MoonBit project and import it with an alias:
+MoonBit project に CLI package を追加し、alias 付きで import します。
 
 ```mbt
 import {
@@ -38,7 +47,7 @@ import {
 
 ## Streaming
 
-MoonBit uses an asynchronous callback in place of an async generator.
+MoonBit では async generator の代わりに asynchronous callback を使用します。
 
 ```mbt check
 ///|
@@ -57,17 +66,29 @@ async fn stream_example {
 }
 ```
 
-`ThreadEvent` models the JSONL events emitted by the OpenCode CLI: completed text and reasoning parts, completed or failed tool calls, step start and finish records, and stream errors. Step-finish events retain cost and token usage, while `Thread::run` joins completed text parts into `Turn::final_response`.
+`ThreadEvent` は OpenCode CLI が出力する JSONL event を model 化します。完了した text と reasoning part、成功または失敗した tool call、step の開始と終了 record、stream error を扱います。step-finish event は cost と token usage を保持し、`Thread::run` は完了 text part を `Turn::final_response` に連結します。
 
-## Options and lifecycle
+## Option と lifecycle
 
-`OpenCodeOptions` accepts an explicit executable path, an environment map, and recursively typed configuration serialized to `OPENCODE_CONFIG_CONTENT`. `ThreadOptions` forwards model, agent, working directory, variant, title, and thinking output through the corresponding official CLI flags, while `UserInputs` forwards local files with repeated `--file` flags.
+`OpenCodeOptions` は executable path、environment map、`OPENCODE_CONFIG_CONTENT` に serialize する再帰的に typed な configuration を受け取ります。`ThreadOptions` は model、agent、working directory、variant、title、thinking output を対応する公式 CLI flag に渡し、`UserInputs` は local file を繰り返しの `--file` flag として渡します。
 
-The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancelling that task hard-cancels and waits for the child process before control returns.
+`run` または `run_streamed` を呼び出す task が OpenCode subprocess を所有します。task を cancel すると child process を hard-cancel して wait してから制御を返します。
+
+## 検証条件
+
+```mermaid
+flowchart TD
+  A[exact SHA 5bb57e3 local overlay] --> B[moon info]
+  B --> C[moon check --deny-warn]
+  C --> D[moon test --deny-warn]
+  D --> E[moon build --deny-warn]
+  E --> F[CLI focused tests]
+  E --> G[Server focused tests and source parity]
+```
 
 ## Managed Server lifecycle
 
-The managed Server lifecycle is a separate native package. It starts `opencode serve`, waits for the announced URL, and owns close/cleanup only; it does not provide an HTTP client or share CLI types.
+managed Server lifecycle は別の native package です。`opencode serve` を開始し、通知された URL を待機し、close/cleanup だけを所有します。HTTP client は提供せず、CLI type も共有しません。
 
 ```mbt
 import {
@@ -85,4 +106,4 @@ async fn server_example {
 
 ## Migration
 
-Version 0.3.0 is a breaking migration: the former CLI import `totto2727/opencode-sdk` is now `totto2727/opencode-sdk/cli`. The former managed lifecycle import `totto2727/opencode-server-sdk` is now `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
+Version 0.3.0 は破壊的な migration です。以前の CLI import `totto2727/opencode-sdk` は `totto2727/opencode-sdk/cli` になり、以前の managed lifecycle import `totto2727/opencode-server-sdk` は `totto2727/opencode-sdk/server` になりました。2 package の contract は分離されたままです。CLI package は、target/runtime 固有の subpackage を持たない `totto2727/agent-core-sdk/cli` に直接依存します。
