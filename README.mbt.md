@@ -76,14 +76,23 @@ The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancel
 
 ## Validation conditions
 
+The module and CLI package declare `+wasm+native` support with `native` as the preferred target. The managed Server package remains native-only because it depends on the native process and filesystem APIs.
+
+| Surface | Native validation | Wasm validation |
+| --- | --- | --- |
+| `src/cli` | Check, test, and build | Focused check, test, and build |
+| `src/server` | Check, test, and build | Not selected |
+| Published module | `moon package --list` | Not selected |
+
+The CI matrix runs the native column against the complete module, including the managed Server, and runs the Wasm column only against `src/cli`; the native-only Server is never built for Wasm. The Wasm job creates a temporary Moon workspace containing the exact `totto2727/agent-core-sdk` commit `5bb57e3bb9bd5eeef2dc137f3899c13d115dc264` and expands only that checkout's target metadata. No dependency override or `moon.work` is committed. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
+
 ```mermaid
 flowchart TD
-  A[exact SHA 5bb57e3 local overlay] --> B[moon info]
-  B --> C[moon check --deny-warn]
-  C --> D[moon test --deny-warn]
-  D --> E[moon build --deny-warn]
-  E --> F[CLI focused tests]
-  E --> G[Server focused tests and source parity]
+  A[exact SHA 5bb57e3 local overlay] --> B[temporary Moon workspace]
+  B --> C[native full check/test/build]
+  C --> D[managed Server included]
+  B --> E[wasm CLI check/test/build]
+  E --> F[src/cli only]
 ```
 
 ## Managed Server lifecycle

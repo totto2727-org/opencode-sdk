@@ -14,7 +14,7 @@ description = "MoonBit SDKs for OpenCode CLI execution and managed Server lifecy
 
 preferred_target = "native"
 
-supported_targets = "native"
+supported_targets = "+wasm+native"
 
 import {
   "moonbitlang/x@0.4.47",
