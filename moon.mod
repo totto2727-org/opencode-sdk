@@ -1,27 +1,27 @@
-name = "username/project"
+name = "totto2727/opencode-sdk"
 
-version = "0.1.0"
+version = "0.2.2"
 
 readme = "README.mbt.md"
 
-repository = "https://github.com/username/project"
+repository = "https://github.com/totto2727-org/opencode-sdk"
 
 license = "MIT"
 
-keywords = [ "moonbit", "library" ]
+keywords = [ "opencode", "sdk", "cli", "server", "moonbit" ]
 
-description = "A simple MoonBit library"
+description = "MoonBit SDKs for OpenCode CLI execution and managed Server lifecycle"
 
-// Leave both settings unset for synchronous, backend-neutral libraries.
-//
-// For async libraries, uncomment supported_targets and exactly one
-// preferred_target. Choose the first viable preferred target in this order:
-// wasm, js, native. If a dependency supports fewer targets, narrow both
-// settings to match that dependency.
-//
-// supported_targets = "+native+js+wasm"
-// preferred_target = "wasm"
-// preferred_target = "js"
-// preferred_target = "native"
+preferred_target = "native"
+
+supported_targets = "native"
+
+import {
+  "moonbitlang/x@0.4.47",
+  "moonbitlang/async@0.20.3",
+  "totto2727/agent-core-sdk@0.1.0",
+  "totto2727/copy@0.2.0",
+  "totto2727/lens@0.4.0",
+}
 
 source = "./src"
