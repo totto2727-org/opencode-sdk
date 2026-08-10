@@ -47,7 +47,7 @@ jobs:
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           moon info
           moon check --target native --deny-warn
-          moon test --target native --deny-warn
+          moon test --target native --deny-warn --no-parallelize
           moon build --target native --deny-warn
           moon package --list
       - name: Validate Wasm CLI package
