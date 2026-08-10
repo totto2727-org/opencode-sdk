@@ -104,6 +104,10 @@ async fn server_example {
 }
 ```
 
+task group は返却された Server より長く生存する必要があります。task-group body の成功時と failure 時の両方で `Server::close` を呼び出してください。managed Server 自身が長寿命の child task であり、task-group の defer は child task の終了後に実行されます。
+
+実行可能な health example は [`src/examples/health`](src/examples/health) にあります。
+
 ## Migration
 
 Version 0.3.0 は破壊的な migration です。以前の CLI import `totto2727/opencode-sdk` は `totto2727/opencode-sdk/cli` になり、以前の managed lifecycle import `totto2727/opencode-server-sdk` は `totto2727/opencode-sdk/server` になりました。2 package の contract は分離されたままです。CLI package は、target/runtime 固有の subpackage を持たない `totto2727/agent-core-sdk/cli` に直接依存します。

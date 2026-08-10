@@ -1,0 +1,8 @@
+import {
+  "totto2727/opencode-sdk/server" @opencode,
+  "moonbitlang/async",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")
