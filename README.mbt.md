@@ -26,7 +26,7 @@ Add the CLI package to a MoonBit project and import it with an alias:
 
 ```mbt
 import {
-  "totto2727/opencode-sdk@0.2.2",
+  "totto2727/opencode-sdk@0.3.0",
 }
 ```
 
@@ -85,4 +85,4 @@ async fn server_example {
 
 ## Migration
 
-The former CLI import `totto2727/opencode-sdk` is now `totto2727/opencode-sdk/cli`. The former managed lifecycle import `totto2727/opencode-server-sdk` is now `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
+Version 0.3.0 is a breaking migration: the former CLI import `totto2727/opencode-sdk` is now `totto2727/opencode-sdk/cli`. The former managed lifecycle import `totto2727/opencode-server-sdk` is now `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
