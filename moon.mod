@@ -12,9 +12,9 @@ keywords = [ "opencode", "sdk", "cli", "server", "moonbit" ]
 
 description = "MoonBit SDKs for OpenCode CLI execution and managed Server lifecycle"
 
-preferred_target = "native"
+preferred_target = "wasm"
 
-supported_targets = "native"
+supported_targets = "+wasm+native"
 
 import {
   "moonbitlang/x@0.4.47",
