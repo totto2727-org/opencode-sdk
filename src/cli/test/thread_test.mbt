@@ -7,7 +7,7 @@ using @opencode {
 }
 
 ///|
-async test "Client run 1 - returns a completed turn" {
+async test "Client run - returns a completed turn" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("session-1", "Hello!")]),
@@ -28,7 +28,7 @@ async test "Client run 1 - returns a completed turn" {
 }
 
 ///|
-async test "Client run 2 - continues the session on a second turn" {
+async test "Client run - continues the session on a second turn" {
   with_cli_fixture(async fn(fixture) {
     let thread = fixture
       .client(

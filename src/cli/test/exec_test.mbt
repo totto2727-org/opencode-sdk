@@ -14,7 +14,7 @@ async fn process_is_running(pid : Int) -> Bool {
 }
 
 ///|
-async test "Exec run 1 - reports nonzero exits" {
+async test "Exec run - reports nonzero exits" {
   with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment["FAKE_OPENCODE_STDERR"] = "cli failed"
@@ -32,7 +32,7 @@ async test "Exec run 1 - reports nonzero exits" {
 }
 
 ///|
-async test "Exec run 2 - rejects malformed JSONL" {
+async test "Exec run - rejects malformed JSONL" {
   with_cli_fixture(async fn(fixture) {
     let message = try {
       fixture
@@ -50,7 +50,7 @@ async test "Exec run 2 - rejects malformed JSONL" {
 }
 
 ///|
-async test "Exec run 3 - raises a turn failure from an error event" {
+async test "Exec run - raises a turn failure from an error event" {
   with_cli_fixture(async fn(fixture) {
     let events = "{\"type\":\"error\",\"timestamp\":1,\"sessionID\":\"session-1\",\"error\":{\"name\":\"UnknownError\",\"data\":{\"message\":\"provider failed\"}}}"
     let message = try {
@@ -69,7 +69,7 @@ async test "Exec run 3 - raises a turn failure from an error event" {
 }
 
 ///|
-async test "Exec run 4 - stops the child when cancelled" {
+async test "Exec run - stops the child when cancelled" {
   with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment["FAKE_OPENCODE_PAUSE"] = "1"
