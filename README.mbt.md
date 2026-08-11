@@ -4,16 +4,51 @@ Embed the OpenCode agent in MoonBit workflows and applications through the insta
 
 The public client shape intentionally follows `totto2727/codex-sdk`: create an `OpenCode` client, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
 
-```mermaid
-flowchart LR
-  Client[OpenCode client] --> Thread[start or resume Thread]
-  Thread --> Run[opencode run --format json]
-  Run --> Core[agent-core-sdk/cli]
-  Core --> Events[typed OpenCode JSONL events]
-  Server[opencode-sdk/server] --> Serve[opencode serve lifecycle]
+## Migration
+
+Version 0.3.0 is a breaking package-path migration. Update the former CLI import `totto2727/opencode-sdk` to `totto2727/opencode-sdk/cli`, and update the former managed lifecycle import `totto2727/opencode-server-sdk` to `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
+
+## Workspace usage
+
+Add the module dependency:
+
+```mbt
+import {
+  "totto2727/opencode-sdk@0.3.0",
+}
 ```
 
-## Usage
+Import the CLI package with an alias:
+
+```mbt
+import {
+  "totto2727/opencode-sdk/cli" @opencode_sdk,
+}
+```
+
+The `opencode` executable must be available on `PATH` for native process execution, or supplied with `OpenCodeOptions.opencode_path_override`.
+
+## Target support
+
+| Surface | Native | Wasm |
+| --- | --- | --- |
+| Module and `src/cli` package | Supported | Supported |
+| CI validation | Not run in CI | Preferred target |
+| OpenCode subprocess execution | Uses the host process runtime | Requires a host/runtime process bridge |
+| `src/server` package | Supported | Not supported |
+
+The SDK declares both native and wasm CLI support, while CI validates the `wasm` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims. The managed Server remains a separate native-only package.
+
+## Development shells
+
+The default Nix development shell contains only the MoonBit toolchain. The CI shell derives from it and adds the Nix-managed `opencode` executable from the official [`anomalyco/opencode`](https://github.com/anomalyco/opencode) flake overlay. The workflow uses the shared Nix and MoonBit actions from [`totto2727-org/monorepo@main`](https://github.com/totto2727-org/monorepo/tree/main/.github/actions), with a job-level `NIX_DEV_SHELL` selecting the CI shell for both MoonBit actions.
+
+```sh
+nix develop
+nix develop .#ci --command opencode --version
+```
+
+## Quickstart
 
 ```mbt check
 ///|
@@ -31,21 +66,9 @@ async fn example {
 }
 ```
 
-Add the CLI package to a MoonBit project and import it with an alias:
+Call `run` repeatedly on the same `Thread` value to continue that OpenCode session.
 
-```mbt
-import {
-  "totto2727/opencode-sdk@0.3.0",
-}
-```
-
-```mbt
-import {
-  "totto2727/opencode-sdk/cli" @opencode_sdk,
-}
-```
-
-## Streaming
+## Streaming responses
 
 MoonBit uses an asynchronous callback in place of an async generator.
 
@@ -74,22 +97,19 @@ async fn stream_example {
 
 The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancelling that task hard-cancels and waits for the child process before control returns.
 
-## Validation conditions
+## Agent core integration
 
-The module and CLI package declare `+wasm+native` support with `wasm` as the preferred target. The managed Server package remains native-only because it depends on the native process and filesystem APIs.
-
-CI uses the shared Nix setup and MoonBit setup/check actions from the monorepo's `main` branch. The actions run target-unspecified format, check, build, and test commands, so MoonBit selects the module's preferred `wasm` target and validates the CLI package without selecting the native-only managed Server. Native CLI support remains declared but is not part of the regular CI gate. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
-
-The default Nix development shell remains MoonBit-only. CI selects the separate `ci` shell, which inherits the default shell and adds `pkgs.opencode` from the official [`anomalyco/opencode`](https://github.com/anomalyco/opencode) flake overlay for process tests.
+The CLI package depends directly on the single `totto2727/agent-core-sdk/cli` package. `OpenCodeExec` owns OpenCode-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
 
 ```mermaid
-flowchart TD
-  A[shared setup action] --> B[ci devShell]
-  B --> C[official OpenCode package]
-  B --> D[target-unspecified validation]
-  D --> E[preferred Wasm target]
-  E --> F[CLI package]
-  G[managed Server] --> H[native-only and unchanged]
+flowchart LR
+  Thread[OpenCode Thread] --> Exec[OpenCodeExec]
+  Exec --> Invocation[agent_cli.Invocation]
+  Invocation --> Run[agent_cli.run]
+  Run --> Process[opencode run process]
+  Process --> Jsonl[OpenCode JSONL events]
+  Jsonl --> Event[ThreadEvent callback]
+  Event --> Thread
 ```
 
 ## Managed Server lifecycle
@@ -114,6 +134,27 @@ The task group must outlive the returned Server. Call `Server::close` inside the
 
 The executable health example is in [`src/server/examples/health`](src/server/examples/health).
 
-## Migration
+## Tests
 
-Version 0.3.0 is a breaking migration: the former CLI import `totto2727/opencode-sdk` is now `totto2727/opencode-sdk/cli`. The former managed lifecycle import `totto2727/opencode-server-sdk` is now `totto2727/opencode-sdk/server`. The two packages retain distinct contracts. The CLI package directly depends on `totto2727/agent-core-sdk/cli`, which has no target- or runtime-specific subpackage.
+Run the preferred-target package checks from the repository root:
+
+```sh
+moon check
+moon test
+moon build
+```
+
+The module still declares native and wasm CLI support. Pass an explicit `--target` only when deliberately validating a declared non-preferred target locally. The native-only managed Server is not selected by preferred Wasm validation.
+
+The preferred-target suite covers each typed OpenCode event decoder, including malformed and unknown events. Native tests use fake OpenCode executables to cover arguments, environment, JSONL parsing, failures, cancellation, session continuation, resume, and streamed events. Separate native Server tests cover option forwarding, readiness parsing, idempotent close, malformed readiness, timeout, early exit, and child cleanup.
+
+## Test conditions
+
+```mermaid
+flowchart TD
+  Shell[CI Nix devShell] --> OpenCode[opencode --version]
+  OpenCode --> Metadata[moon info]
+  Metadata --> Check[moon check]
+  Check --> Test[moon test]
+  Test --> Build[moon build]
+```
