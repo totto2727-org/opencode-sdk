@@ -12,7 +12,7 @@ keywords = [ "opencode", "sdk", "cli", "server", "moonbit" ]
 
 description = "MoonBit SDKs for OpenCode CLI execution and managed Server lifecycle"
 
-preferred_target = "native"
+preferred_target = "wasm"
 
 supported_targets = "+wasm+native"
 
