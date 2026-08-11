@@ -1,7 +1,7 @@
 ///|
 using @opencode {
   type Client,
-  type Options,
+  type ClientOptions,
   type ThreadEvent,
   type ThreadOptions,
 }
@@ -124,7 +124,7 @@ fn CliFixture::client(
   environment : Map[String, String],
 ) -> Client {
   Client::Client(
-    options=Options::Options(
+    options=ClientOptions::ClientOptions(
       executable_path_override=self.executable,
       env=environment,
     ),

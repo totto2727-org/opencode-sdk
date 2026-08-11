@@ -14,8 +14,8 @@ pub(all) enum ConfigValue {
 pub type ConfigObject = Map[String, ConfigValue]
 
 ///|
-/// Options shared by every thread created from an OpenCode client.
-pub struct Options {
+/// Client options captured by the OpenCode CLI executor.
+pub struct ClientOptions {
   executable_path_override : @path.Path?
   config : ConfigObject?
   env : Map[String, String]?
@@ -23,11 +23,11 @@ pub struct Options {
 
 ///|
 /// Construct client-wide OpenCode CLI options.
-pub fn Options::Options(
+pub fn ClientOptions::ClientOptions(
   executable_path_override? : @path.Path,
   config? : ConfigObject,
   env? : Map[String, String],
-) -> Options {
+) -> ClientOptions {
   { executable_path_override, config, env }
 }
 
