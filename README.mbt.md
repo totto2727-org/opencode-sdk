@@ -6,7 +6,7 @@ The public client shape intentionally follows `totto2727/codex-sdk`: create an `
 
 ## Migration
 
-Version 0.3.0 is a breaking package-path migration. Update the former CLI import `totto2727/opencode-sdk` to `totto2727/opencode-sdk/cli`, and update the former managed lifecycle import `totto2727/opencode-server-sdk` to `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
+Version 0.3.1 is a breaking package-path migration. Update the former CLI import `totto2727/opencode-sdk` to `totto2727/opencode-sdk/cli`, and update the former managed lifecycle import `totto2727/opencode-server-sdk` to `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
 
 ## Workspace usage
 
@@ -14,7 +14,7 @@ Add the module dependency:
 
 ```mbt
 import {
-  "totto2727/opencode-sdk@0.3.0",
+  "totto2727/opencode-sdk@0.3.1",
 }
 ```
 
