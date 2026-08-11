@@ -1,17 +1,6 @@
 ///|
-/// A recursively typed OpenCode configuration value.
-pub(all) enum ConfigValue {
-  ConfigString(String)
-  ConfigInt(Int)
-  ConfigDouble(Double)
-  ConfigBool(Bool)
-  ConfigArray(Array[ConfigValue])
-  ConfigObject(Map[String, ConfigValue])
-} derive(Debug, Eq)
-
-///|
 /// An OpenCode configuration object serialized into `OPENCODE_CONFIG_CONTENT`.
-pub type ConfigObject = Map[String, ConfigValue]
+pub type ConfigObject = Map[String, Json]
 
 ///|
 /// Client options captured by the OpenCode CLI executor.

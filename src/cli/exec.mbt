@@ -82,7 +82,7 @@ async fn Exec::run(
     None => Map([])
   }
   if self.config is Some(config) {
-    environment["OPENCODE_CONFIG_CONTENT"] = config.to_json().stringify()
+    environment["OPENCODE_CONFIG_CONTENT"] = Json::object(config).stringify()
   }
   let inherit_environment = self.env_override is None
   let result = @agent_cli.run(

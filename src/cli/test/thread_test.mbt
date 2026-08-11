@@ -2,6 +2,7 @@
 using @opencode {
   type Client,
   type ClientOptions,
+  type ConfigObject,
   type ThreadEvent,
   type ThreadOptions,
 }
@@ -60,6 +61,35 @@ async test "Client resume_thread - resumes a session by ID" {
     assert_true(
       contains_pair(fixture.recorded_lines("args", 1), "--session", "session-7"),
     )
+  })
+}
+
+///|
+async test "Client config - forwards JSON through OPENCODE_CONFIG_CONTENT" {
+  with_cli_fixture(async fn(fixture) {
+    let config : ConfigObject = {
+      "model": "test/model",
+      "enabled": true,
+      "retries": 2,
+      "ratio": 0.5,
+      "plugins": ["one", { "name": "two" }],
+      "nullable": Json::null(),
+    }
+    let thread = fixture
+      .client(
+        fixture.environment([completed_events("session-1", "Configured")]),
+        config~,
+      )
+      .start_thread()
+    thread.run(@opencode.Prompt("use config")) |> ignore
+    json_inspect(@json.parse(fixture.recorded_text("config", 1)), content={
+      "model": "test/model",
+      "enabled": true,
+      "retries": 2,
+      "ratio": 0.5,
+      "plugins": ["one", { "name": "two" }],
+      "nullable": null,
+    })
   })
 }
 
@@ -122,10 +152,12 @@ fn CliFixture::environment(
 fn CliFixture::client(
   self : CliFixture,
   environment : Map[String, String],
+  config? : ConfigObject,
 ) -> Client {
   Client::Client(
     options=ClientOptions::ClientOptions(
       executable_path_override=self.executable,
+      config?,
       env=environment,
     ),
   )
@@ -182,6 +214,7 @@ fn fake_cli_script() -> String {
     #|done
     #|/bin/cat > "$record_dir/input.$call"
     #|/usr/bin/env | /usr/bin/sort > "$record_dir/env.$call"
+    #|printf '%s' "${OPENCODE_CONFIG_CONTENT-}" > "$record_dir/config.$call"
     #|printf '%s\n' "$$" > "$record_dir/pid.$call"
     #|case "$call" in
     #|  1) events="${FAKE_OPENCODE_EVENTS_1-}" ;;
