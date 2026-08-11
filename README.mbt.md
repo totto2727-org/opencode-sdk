@@ -78,14 +78,17 @@ The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancel
 
 The module and CLI package declare `+wasm+native` support with `native` as the preferred target. The managed Server package remains native-only because it depends on the native process and filesystem APIs.
 
-CI runs target-unspecified `moon check`, `moon test`, and `moon build`, so MoonBit selects the module's preferred `native` target and validates the complete module, including the managed Server. `moon package --list` validates the published file set. The CLI's Wasm support remains declared but is not part of the regular CI gate. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
+CI uses the shared Nix setup and MoonBit setup/check actions at one exact commit. The actions run target-unspecified format, check, build, and serialized test commands, so MoonBit selects the module's preferred `native` target and validates the complete module, including the managed Server. The CLI's Wasm support remains declared but is not part of the regular CI gate. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
+
+The default Nix development shell remains MoonBit-only. CI selects the separate `ci` shell, which inherits the default shell and adds `pkgs.opencode` from the official [`anomalyco/opencode`](https://github.com/anomalyco/opencode) flake overlay for process tests.
 
 ```mermaid
 flowchart TD
-  A[moon update] --> B[target-unspecified validation]
-  B --> C[preferred native target]
-  C --> D[CLI and managed Server]
-  D --> E[package file listing]
+  A[shared setup action] --> B[ci devShell]
+  B --> C[official OpenCode package]
+  B --> D[target-unspecified validation]
+  D --> E[preferred native target]
+  E --> F[CLI and managed Server]
 ```
 
 ## Managed Server lifecycle

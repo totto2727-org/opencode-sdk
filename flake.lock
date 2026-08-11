@@ -53,10 +53,31 @@
         "url": "https://flakehub.com/f/NixOS/nixpkgs/0.1"
       }
     },
+    "opencode": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786399725,
+        "narHash": "sha256-wlfmrnn2//iJ+zb0w8VwWOg68yVP3x2QLpTKTIeTAzg=",
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "3a90639cb57619a21e59f544b3e8d23ffed56f48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "moonbit-overlay": "moonbit-overlay",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "opencode": "opencode"
       }
     },
     "treefmt-nix": {
