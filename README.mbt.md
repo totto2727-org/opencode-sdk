@@ -78,7 +78,7 @@ The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancel
 
 The module and CLI package declare `+wasm+native` support with `native` as the preferred target. The managed Server package remains native-only because it depends on the native process and filesystem APIs.
 
-CI uses the shared Nix setup and MoonBit setup/check actions at one exact commit. The actions run target-unspecified format, check, build, and serialized test commands, so MoonBit selects the module's preferred `native` target and validates the complete module, including the managed Server. The CLI's Wasm support remains declared but is not part of the regular CI gate. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
+CI uses the shared Nix setup and MoonBit setup/check actions from the monorepo's `main` branch. The actions run target-unspecified format, check, build, and test commands, so MoonBit selects the module's preferred `native` target and validates the complete module, including the managed Server. The CLI's Wasm support remains declared but is not part of the regular CI gate. This follows MoonBit's [`supported_targets` and `preferred_target` model](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html).
 
 The default Nix development shell remains MoonBit-only. CI selects the separate `ci` shell, which inherits the default shell and adds `pkgs.opencode` from the official [`anomalyco/opencode`](https://github.com/anomalyco/opencode) flake overlay for process tests.
 
