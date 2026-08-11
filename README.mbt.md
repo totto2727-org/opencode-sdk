@@ -4,10 +4,6 @@ Embed the OpenCode agent in MoonBit workflows and applications through the insta
 
 The public client shape intentionally follows `totto2727/codex-sdk`: create a `Client`, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
 
-## Migration
-
-Version `0.4.0` exposes the CLI SDK through provider-neutral names under the package alias: `Client`, `Options`, `ConfigValue`, `ConfigObject`, and `SdkError`. The CLI and managed Server packages retain distinct contracts.
-
 ## Workspace usage
 
 Add the module dependency:
