@@ -12,12 +12,14 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NIX_DEV_SHELL: ci
     steps:
       - uses: actions/checkout@v7
       - uses: totto2727-org/monorepo/.github/actions/setup-nix@main
       - uses: totto2727-org/monorepo/.github/actions/setup-moonbit@main
         with:
-          dev-shell: ci
+          dev-shell: ${{ env.NIX_DEV_SHELL }}
       - uses: totto2727-org/monorepo/.github/actions/check-moonbit@main
         with:
-          dev-shell: ci
+          dev-shell: ${{ env.NIX_DEV_SHELL }}
