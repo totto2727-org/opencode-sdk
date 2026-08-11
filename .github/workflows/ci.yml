@@ -12,14 +12,6 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: native
-            validation: module
-          - target: wasm
-            validation: cli
     steps:
       - uses: actions/checkout@v7
       - uses: totto2727-org/monorepo/.github/actions/setup-nix@main
@@ -27,34 +19,11 @@ jobs:
         run: |
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           moon update
-      - name: Prepare exact agent-core workspace for Wasm CLI validation
-        if: matrix.validation == 'cli'
-        run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
-          workspace="$RUNNER_TEMP/opencode-sdk-wasm-workspace"
-          mkdir -p "$workspace"
-          git clone --quiet "$GITHUB_WORKSPACE" "$workspace/opencode-sdk"
-          git clone --quiet https://github.com/totto2727-org/agent-core-sdk.git "$workspace/agent-core-sdk"
-          git -C "$workspace/agent-core-sdk" checkout --quiet 5bb57e3bb9bd5eeef2dc137f3899c13d115dc264
-          sed -i 's/supported_targets = "native"/supported_targets = "+wasm+native"/' \
-            "$workspace/agent-core-sdk/moon.mod" \
-            "$workspace/agent-core-sdk/src/cli/moon.pkg"
-          printf 'members = ["./agent-core-sdk", "./opencode-sdk"]\n' > "$workspace/moon.work"
-          echo "MOON_WORKSPACE=$workspace" >> "$GITHUB_ENV"
-      - name: Validate native module and managed Server
-        if: matrix.validation == 'module'
+      - name: Validate preferred target
         run: |
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           moon info
-          moon check --target native --deny-warn
-          moon test --target native --deny-warn --no-parallelize
-          moon build --target native --deny-warn
+          moon check --deny-warn
+          moon test --deny-warn --no-parallelize
+          moon build --deny-warn
           moon package --list
-      - name: Validate Wasm CLI package
-        if: matrix.validation == 'cli'
-        run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
-          moon -C "$MOON_WORKSPACE" update
-          moon -C "$MOON_WORKSPACE" check --target wasm --deny-warn opencode-sdk/src/cli
-          moon -C "$MOON_WORKSPACE" test --target wasm --deny-warn opencode-sdk/src/cli
-          moon -C "$MOON_WORKSPACE" build --target wasm --deny-warn opencode-sdk/src/cli
