@@ -4,36 +4,12 @@ Embed the OpenCode agent in MoonBit workflows and applications through the insta
 
 The public client shape intentionally follows `totto2727/codex-sdk`: create a `Client`, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
 
-## Workspace usage
-
-Add the module dependency:
-
-```mbt
-import {
-  "totto2727/opencode-sdk@0.4.0",
-}
-```
-
-Import the CLI package with an alias:
-
-```mbt
-import {
-  "totto2727/opencode-sdk/cli" @opencode,
-}
-```
-
 The `opencode` executable must be available on `PATH` for native process execution, or supplied with `Options.executable_path_override`.
 
 ## Target support
 
-| Surface | Native | Wasm |
-| --- | --- | --- |
-| Module and `src/cli` package | Supported | Supported |
-| CI validation | Not run in CI | Preferred target |
-| OpenCode subprocess execution | Uses the host process runtime | Requires a host/runtime process bridge |
-| `src/server` package | Supported | Not supported |
-
-The SDK declares both native and wasm CLI support, while CI validates the `wasm` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims. The managed Server remains a separate native-only package.
+- CLI: `wasm` (preferred), `native`
+- Server: `native`
 
 ## Development shells
 
