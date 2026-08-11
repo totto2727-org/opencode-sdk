@@ -3,7 +3,7 @@
 // https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts#L416-L428
 
 ///|
-priv struct OpenCodeExecArgs {
+priv struct ExecArgs {
   input : String
   session_id : String?
   files : Array[@path.Path]
@@ -17,19 +17,19 @@ priv struct OpenCodeExecArgs {
 
 ///|
 /// Process adapter for `opencode run --format json`.
-struct OpenCodeExec {
+struct Exec {
   executable_path : @path.Path
   env_override : Map[String, String]?
-  config : OpenCodeConfigObject?
+  config : ConfigObject?
 }
 
 ///|
 /// Construct the process adapter used by an OpenCode client.
-fn OpenCodeExec::OpenCodeExec(
+fn Exec::Exec(
   executable_path : @path.Path?,
   env : Map[String, String]?,
-  config : OpenCodeConfigObject?,
-) -> OpenCodeExec {
+  config : ConfigObject?,
+) -> Exec {
   {
     executable_path: executable_path.unwrap_or(@path.Path("opencode")),
     env_override: env,
@@ -39,9 +39,9 @@ fn OpenCodeExec::OpenCodeExec(
 
 ///|
 /// Execute the OpenCode CLI and deliver each decoded event to `on_event`.
-async fn OpenCodeExec::run(
-  self : OpenCodeExec,
-  args : OpenCodeExecArgs,
+async fn Exec::run(
+  self : Exec,
+  args : ExecArgs,
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["run", "--format", "json"]

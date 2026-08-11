@@ -2,11 +2,11 @@
 
 Embed the OpenCode agent in MoonBit workflows and applications through the installed [`opencode run --format json`](https://dev.opencode.ai/docs/cli/) command.
 
-The public client shape intentionally follows `totto2727/codex-sdk`: create an `OpenCode` client, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
+The public client shape intentionally follows `totto2727/codex-sdk`: create a `Client`, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
 
 ## Migration
 
-Version 0.3.1 is a breaking package-path migration. Update the former CLI import `totto2727/opencode-sdk` to `totto2727/opencode-sdk/cli`, and update the former managed lifecycle import `totto2727/opencode-server-sdk` to `totto2727/opencode-sdk/server`. The two packages retain distinct contracts.
+Version `0.4.0` exposes the CLI SDK through provider-neutral names under the package alias: `Client`, `Options`, `ConfigValue`, `ConfigObject`, and `SdkError`. The CLI and managed Server packages retain distinct contracts.
 
 ## Workspace usage
 
@@ -14,7 +14,7 @@ Add the module dependency:
 
 ```mbt
 import {
-  "totto2727/opencode-sdk@0.3.1",
+  "totto2727/opencode-sdk@0.4.0",
 }
 ```
 
@@ -22,11 +22,11 @@ Import the CLI package with an alias:
 
 ```mbt
 import {
-  "totto2727/opencode-sdk/cli" @opencode_sdk,
+  "totto2727/opencode-sdk/cli" @opencode,
 }
 ```
 
-The `opencode` executable must be available on `PATH` for native process execution, or supplied with `OpenCodeOptions.opencode_path_override`.
+The `opencode` executable must be available on `PATH` for native process execution, or supplied with `Options.executable_path_override`.
 
 ## Target support
 
@@ -53,14 +53,14 @@ nix develop .#ci --command opencode --version
 ```mbt check
 ///|
 async fn example {
-  let opencode = @opencode_sdk.OpenCode::OpenCode()
-  let thread = opencode.start_thread(
-    options=@opencode_sdk.ThreadOptions::ThreadOptions(
+  let client = @opencode.Client::Client()
+  let thread = client.start_thread(
+    options=@opencode.ThreadOptions::ThreadOptions(
       model="opencode-go/deepseek-v4-flash",
     ),
   )
   let turn = thread.run(
-    @opencode_sdk.Input::Prompt("Explain this repository in one paragraph."),
+    @opencode.Input::Prompt("Explain this repository in one paragraph."),
   )
   println(turn.final_response)
 }
@@ -75,12 +75,12 @@ MoonBit uses an asynchronous callback in place of an async generator.
 ```mbt check
 ///|
 async fn stream_example {
-  let thread = @opencode_sdk.OpenCode::OpenCode().start_thread()
+  let thread = @opencode.Client::Client().start_thread()
   thread.run_streamed(
-    @opencode_sdk.Input::Prompt("Summarize the current changes."),
+    @opencode.Input::Prompt("Summarize the current changes."),
     async fn(event) {
       match event {
-        @opencode_sdk.Text(text) => println(text.text)
+        @opencode.Text(text) => println(text.text)
         _ => ()
       }
       @async.pause()
@@ -93,17 +93,17 @@ async fn stream_example {
 
 ## Options and lifecycle
 
-`OpenCodeOptions` accepts an explicit executable path, an environment map, and recursively typed configuration serialized to `OPENCODE_CONFIG_CONTENT`. `ThreadOptions` forwards model, agent, working directory, variant, title, and thinking output through the corresponding official CLI flags, while `UserInputs` forwards local files with repeated `--file` flags.
+`Options` accepts an explicit executable path, an environment map, and recursively typed configuration serialized to `OPENCODE_CONFIG_CONTENT`. `ThreadOptions` forwards model, agent, working directory, variant, title, and thinking output through the corresponding official CLI flags, while `UserInputs` forwards local files with repeated `--file` flags.
 
 The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancelling that task hard-cancels and waits for the child process before control returns.
 
 ## Agent core integration
 
-The CLI package depends directly on the single `totto2727/agent-core-sdk/cli` package. `OpenCodeExec` owns OpenCode-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
+The CLI package depends directly on `totto2727/agent-core-sdk/cli`. `Exec` owns OpenCode-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
 
 ```mermaid
 flowchart LR
-  Thread[OpenCode Thread] --> Exec[OpenCodeExec]
+  Thread[OpenCode Thread] --> Exec[Exec]
   Exec --> Invocation[agent_cli.Invocation]
   Invocation --> Run[agent_cli.run]
   Run --> Process[opencode run process]
@@ -111,6 +111,17 @@ flowchart LR
   Jsonl --> Event[ThreadEvent callback]
   Event --> Thread
 ```
+
+The CLI source layout uses the same package-neutral filenames as the Codex SDK:
+
+| Responsibility | MoonBit |
+| --- | --- |
+| Client lifecycle | `client.mbt` |
+| Client options and configuration | `options.mbt` |
+| Provider events | `events.mbt` |
+| CLI process adapter | `exec.mbt` |
+| Thread lifecycle | `thread.mbt` |
+| Thread options | `thread_options.mbt` |
 
 ## Managed Server lifecycle
 

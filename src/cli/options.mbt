@@ -1,38 +1,38 @@
 ///|
 /// A recursively typed OpenCode configuration value.
-pub(all) enum OpenCodeConfigValue {
+pub(all) enum ConfigValue {
   ConfigString(String)
   ConfigInt(Int)
   ConfigDouble(Double)
   ConfigBool(Bool)
-  ConfigArray(Array[OpenCodeConfigValue])
-  ConfigObject(Map[String, OpenCodeConfigValue])
+  ConfigArray(Array[ConfigValue])
+  ConfigObject(Map[String, ConfigValue])
 } derive(Debug, Eq)
 
 ///|
 /// An OpenCode configuration object serialized into `OPENCODE_CONFIG_CONTENT`.
-pub type OpenCodeConfigObject = Map[String, OpenCodeConfigValue]
+pub type ConfigObject = Map[String, ConfigValue]
 
 ///|
 /// Options shared by every thread created from an OpenCode client.
-pub struct OpenCodeOptions {
-  opencode_path_override : @path.Path?
-  config : OpenCodeConfigObject?
+pub struct Options {
+  executable_path_override : @path.Path?
+  config : ConfigObject?
   env : Map[String, String]?
 } derive(Eq)
 
 ///|
 /// Construct client-wide OpenCode CLI options.
-pub fn OpenCodeOptions::OpenCodeOptions(
-  opencode_path_override? : @path.Path,
-  config? : OpenCodeConfigObject,
+pub fn Options::Options(
+  executable_path_override? : @path.Path,
+  config? : ConfigObject,
   env? : Map[String, String],
-) -> OpenCodeOptions {
-  { opencode_path_override, config, env }
+) -> Options {
+  { executable_path_override, config, env }
 }
 
 ///|
-impl ToJson for OpenCodeConfigValue with fn to_json(self) -> Json {
+impl ToJson for ConfigValue with fn to_json(self) -> Json {
   match self {
     ConfigString(value) => value.to_json()
     ConfigInt(value) => value.to_json()

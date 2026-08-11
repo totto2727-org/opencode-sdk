@@ -34,7 +34,7 @@ pub(all) enum Input {
 ///|
 /// One persisted OpenCode session.
 pub struct Thread {
-  priv exec : OpenCodeExec
+  priv exec : Exec
   priv mut id_value : String?
   priv thread_options : ThreadOptions
 }
@@ -47,7 +47,7 @@ pub fn Thread::id(self : Thread) -> String? {
 
 ///|
 fn Thread::Thread(
-  exec : OpenCodeExec,
+  exec : Exec,
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {

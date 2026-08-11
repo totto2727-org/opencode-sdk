@@ -1,17 +1,15 @@
 ///|
 /// Main client for interacting with the OpenCode agent through its CLI.
-pub struct OpenCode {
-  priv exec : OpenCodeExec
+pub struct Client {
+  priv exec : Exec
 }
 
 ///|
 /// Construct an OpenCode CLI client.
-pub fn OpenCode::OpenCode(
-  options? : OpenCodeOptions = OpenCodeOptions::OpenCodeOptions(),
-) -> OpenCode {
+pub fn Client::Client(options? : Options = Options::Options()) -> Client {
   {
-    exec: OpenCodeExec::OpenCodeExec(
-      options.opencode_path_override,
+    exec: Exec::Exec(
+      options.executable_path_override,
       options.env,
       options.config,
     ),
@@ -20,8 +18,8 @@ pub fn OpenCode::OpenCode(
 
 ///|
 /// Start a new persisted OpenCode session.
-pub fn OpenCode::start_thread(
-  self : OpenCode,
+pub fn Client::start_thread(
+  self : Client,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
   Thread::Thread(self.exec, options)
@@ -29,8 +27,8 @@ pub fn OpenCode::start_thread(
 
 ///|
 /// Resume a persisted OpenCode session by identifier.
-pub fn OpenCode::resume_thread(
-  self : OpenCode,
+pub fn Client::resume_thread(
+  self : Client,
   id : String,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
