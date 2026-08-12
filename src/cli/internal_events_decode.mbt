@@ -19,10 +19,10 @@ let event_part_tool_lens_ : @lens.Lens[String] = @lens.root()
   .string("tool")
 
 ///|
-let event_part_status_lens_ : @lens.Lens[Json] = @lens.root()
+let event_part_status_lens_ : @lens.Lens[ToolUseStatus] = @lens.root()
   .object("part")
   .object("state")
-  .json("status")
+  .custom("status")
 
 ///|
 let usage_input_lens_ : @lens.Lens[Int] = @lens.root().int("input")
@@ -54,9 +54,9 @@ let event_part_cost_lens_ : @lens.Lens[Double] = @lens.root()
   .number("cost")
 
 ///|
-let event_part_tokens_lens_ : @lens.Lens[Json] = @lens.root()
+let event_part_tokens_lens_ : @lens.Lens[Usage] = @lens.root()
   .object("part")
-  .json("tokens")
+  .custom("tokens")
 
 ///|
 let event_error_name_lens_ : @lens.Lens[String] = @lens.root()
@@ -101,15 +101,20 @@ pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
 }
 
 ///|
+pub impl ToJson for ToolUseStatus with fn to_json(self) {
+  match self {
+    Completed => "completed".to_json()
+    Failed => "error".to_json()
+  }
+}
+
+///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
-  let status : ToolUseStatus = event_part_status_lens_.decode_from_json(
-    json, path,
-  )
   {
     session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
     call_id: event_part_call_id_lens_.get_or_json_decode_error(json, path),
     tool: event_part_tool_lens_.get_or_json_decode_error(json, path),
-    status,
+    status: event_part_status_lens_.get_or_json_decode_error(json, path),
   }
 }
 
@@ -134,13 +139,25 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
 }
 
 ///|
+pub impl ToJson for Usage with fn to_json(self) {
+  Json::object({
+    "input": self.input_tokens.to_json(),
+    "output": self.output_tokens.to_json(),
+    "reasoning": self.reasoning_tokens.to_json(),
+    "cache": Json::object({
+      "read": self.cache_read_tokens.to_json(),
+      "write": self.cache_write_tokens.to_json(),
+    }),
+  })
+}
+
+///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
-  let usage : Usage = event_part_tokens_lens_.decode_from_json(json, path)
   {
     session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
     reason: event_part_reason_lens_.get_or_json_decode_error(json, path),
     cost: event_part_cost_lens_.get_or_json_decode_error(json, path),
-    usage,
+    usage: event_part_tokens_lens_.get_or_json_decode_error(json, path),
   }
 }
 
