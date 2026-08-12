@@ -106,3 +106,19 @@ test "ThreadEvent decode 6 - rejects an unknown event type" {
   }
   inspect(message, content="unsupported thread event type: future_event")
 }
+
+///|
+test "ThreadEvent decode 7 - rejects invalid nested payloads" {
+  let message = try {
+    let _ : ThreadEvent = @json.from_json(
+      @json.parse(
+        "{\"type\":\"step_finish\",\"sessionID\":\"session-1\",\"part\":{\"reason\":\"stop\",\"cost\":0.5,\"tokens\":{\"input\":\"ten\",\"output\":3,\"reasoning\":1,\"cache\":{\"read\":2,\"write\":1}}}}",
+      ),
+    )
+    "no error"
+  } catch {
+    @json.JsonDecodeError((_, message)) => message
+    error => "unexpected: \{@debug.to_string(error)}"
+  }
+  assert_true(message.contains("TypeMismatch(expected=Number, actual=String)"))
+}
