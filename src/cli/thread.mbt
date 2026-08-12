@@ -90,8 +90,7 @@ async fn Thread::run_streamed_internal(
         thinking: options.thinking,
       },
       async fn(event) {
-        if self.id_value is None &&
-          event.internal_opencode_session_id() is Some(session_id) {
+        if self.id_value is None && event.session_id_() is Some(session_id) {
           self.id_value = Some(session_id)
         }
         let should_continue = on_event(event)
