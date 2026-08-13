@@ -34,7 +34,7 @@ pub(all) enum Input {
 ///|
 /// One persisted OpenCode session.
 pub struct Thread {
-  priv exec : OpenCodeExec
+  priv exec : Exec
   priv mut id_value : String?
   priv thread_options : ThreadOptions
 }
@@ -47,7 +47,7 @@ pub fn Thread::id(self : Thread) -> String? {
 
 ///|
 fn Thread::Thread(
-  exec : OpenCodeExec,
+  exec : Exec,
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {
@@ -90,7 +90,7 @@ async fn Thread::run_streamed_internal(
         thinking: options.thinking,
       },
       async fn(event) {
-        if self.id_value is None && event.session_id() is Some(session_id) {
+        if self.id_value is None && event.session_id_() is Some(session_id) {
           self.id_value = Some(session_id)
         }
         let should_continue = on_event(event)

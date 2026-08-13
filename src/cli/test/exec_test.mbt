@@ -14,8 +14,8 @@ async fn process_is_running(pid : Int) -> Bool {
 }
 
 ///|
-async test "OpenCodeExec run 1 - reports nonzero exits" {
-  with_fake_opencode(async fn(fixture) {
+async test "Exec run - reports nonzero exits" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment["FAKE_OPENCODE_STDERR"] = "cli failed"
     environment["FAKE_OPENCODE_EXIT_CODE"] = "17"
@@ -24,8 +24,7 @@ async test "OpenCodeExec run 1 - reports nonzero exits" {
       |> ignore
       "no error"
     } catch {
-      @opencode.OpenCodeSdkError::ExecFailed(code~, stderr~) =>
-        "\{code}:\{stderr}"
+      @opencode.SdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr}"
       error => "unexpected: \{error}"
     }
     inspect(message, content="17:cli failed")
@@ -33,8 +32,8 @@ async test "OpenCodeExec run 1 - reports nonzero exits" {
 }
 
 ///|
-async test "OpenCodeExec run 2 - rejects malformed JSONL" {
-  with_fake_opencode(async fn(fixture) {
+async test "Exec run - rejects malformed JSONL" {
+  with_cli_fixture(async fn(fixture) {
     let message = try {
       fixture
       .client(fixture.environment(["{not-json"]))
@@ -43,7 +42,7 @@ async test "OpenCodeExec run 2 - rejects malformed JSONL" {
       |> ignore
       "no error"
     } catch {
-      @opencode.OpenCodeSdkError::InvalidEvent(message~) => message
+      @opencode.SdkError::InvalidEvent(message~) => message
       error => "unexpected: \{error}"
     }
     assert_true(message.has_prefix("Failed to parse OpenCode event: {not-json"))
@@ -51,8 +50,8 @@ async test "OpenCodeExec run 2 - rejects malformed JSONL" {
 }
 
 ///|
-async test "OpenCodeExec run 3 - raises a turn failure from an error event" {
-  with_fake_opencode(async fn(fixture) {
+async test "Exec run - raises a turn failure from an error event" {
+  with_cli_fixture(async fn(fixture) {
     let events = "{\"type\":\"error\",\"timestamp\":1,\"sessionID\":\"session-1\",\"error\":{\"name\":\"UnknownError\",\"data\":{\"message\":\"provider failed\"}}}"
     let message = try {
       fixture
@@ -62,7 +61,7 @@ async test "OpenCodeExec run 3 - raises a turn failure from an error event" {
       |> ignore
       "no error"
     } catch {
-      @opencode.OpenCodeSdkError::TurnFailed(message~) => message
+      @opencode.SdkError::TurnFailed(message~) => message
       error => "unexpected: \{error}"
     }
     inspect(message, content="provider failed")
@@ -70,8 +69,8 @@ async test "OpenCodeExec run 3 - raises a turn failure from an error event" {
 }
 
 ///|
-async test "OpenCodeExec run 4 - stops the child when cancelled" {
-  with_fake_opencode(async fn(fixture) {
+async test "Exec run - stops the child when cancelled" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment["FAKE_OPENCODE_PAUSE"] = "1"
     let thread = fixture.client(environment).start_thread()

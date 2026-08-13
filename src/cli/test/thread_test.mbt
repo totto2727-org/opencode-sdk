@@ -1,14 +1,15 @@
 ///|
 using @opencode {
-  type OpenCode,
-  type OpenCodeOptions,
+  type Client,
+  type ClientOptions,
+  type ConfigObject,
   type ThreadEvent,
   type ThreadOptions,
 }
 
 ///|
-async test "OpenCode run 1 - returns a completed turn" {
-  with_fake_opencode(async fn(fixture) {
+async test "Client run - returns a completed turn" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("session-1", "Hello!")]),
     )
@@ -28,8 +29,8 @@ async test "OpenCode run 1 - returns a completed turn" {
 }
 
 ///|
-async test "OpenCode run 2 - continues the session on a second turn" {
-  with_fake_opencode(async fn(fixture) {
+async test "Client run - continues the session on a second turn" {
+  with_cli_fixture(async fn(fixture) {
     let thread = fixture
       .client(
         fixture.environment([
@@ -49,8 +50,8 @@ async test "OpenCode run 2 - continues the session on a second turn" {
 }
 
 ///|
-async test "OpenCode resume_thread - resumes a session by ID" {
-  with_fake_opencode(async fn(fixture) {
+async test "Client resume_thread - resumes a session by ID" {
+  with_cli_fixture(async fn(fixture) {
     let thread = fixture
       .client(fixture.environment([completed_events("session-7", "Resumed")]))
       .resume_thread("session-7")
@@ -63,26 +64,55 @@ async test "OpenCode resume_thread - resumes a session by ID" {
   })
 }
 
+///|
+async test "Client config - forwards JSON through OPENCODE_CONFIG_CONTENT" {
+  with_cli_fixture(async fn(fixture) {
+    let config : ConfigObject = {
+      "model": "test/model",
+      "enabled": true,
+      "retries": 2,
+      "ratio": 0.5,
+      "plugins": ["one", { "name": "two" }],
+      "nullable": Json::null(),
+    }
+    let thread = fixture
+      .client(
+        fixture.environment([completed_events("session-1", "Configured")]),
+        config~,
+      )
+      .start_thread()
+    thread.run(@opencode.Prompt("use config")) |> ignore
+    json_inspect(@json.parse(fixture.recorded_text("config", 1)), content={
+      "model": "test/model",
+      "enabled": true,
+      "retries": 2,
+      "ratio": 0.5,
+      "plugins": ["one", { "name": "two" }],
+      "nullable": null,
+    })
+  })
+}
+
 // MoonBit-only fake executable for the OpenCode CLI JSONL contract.
 // Official CLI: https://dev.opencode.ai/docs/cli/
 // Canonical JSONL emitter: https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts#L678-L691
 
 ///|
-priv struct FakeOpenCode {
+priv struct CliFixture {
   root : String
   executable : @path.Path
   record_directory : String
 }
 
 ///|
-async fn create_fake_opencode() -> FakeOpenCode {
+async fn create_cli_fixture() -> CliFixture {
   let root = @fs.tmpdir(prefix="opencode-sdk-mbt-test-")
   let executable = @path.Path(root) |> @path.Path::join(@path.Path("opencode"))
   let record_directory = (root |> @path.Path::join(@path.Path("records"))).to_string()
   @fs.mkdir(record_directory, recursive=true)
   @fs.write_file(
     executable.to_string(),
-    fake_opencode_script(),
+    fake_cli_script(),
     create_mode=CreateOrTruncate,
   )
   @fs.chmod(executable.to_string(), 0o755)
@@ -90,8 +120,8 @@ async fn create_fake_opencode() -> FakeOpenCode {
 }
 
 ///|
-async fn with_fake_opencode(run : async (FakeOpenCode) -> Unit) -> Unit {
-  let fixture = create_fake_opencode()
+async fn with_cli_fixture(run : async (CliFixture) -> Unit) -> Unit {
+  let fixture = create_cli_fixture()
   run(fixture) catch {
     error => {
       @async.protect_from_cancel(async fn() {
@@ -104,8 +134,8 @@ async fn with_fake_opencode(run : async (FakeOpenCode) -> Unit) -> Unit {
 }
 
 ///|
-fn FakeOpenCode::environment(
-  self : FakeOpenCode,
+fn CliFixture::environment(
+  self : CliFixture,
   events_by_call : Array[String],
 ) -> Map[String, String] {
   let environment : Map[String, String] = {
@@ -119,21 +149,23 @@ fn FakeOpenCode::environment(
 }
 
 ///|
-fn FakeOpenCode::client(
-  self : FakeOpenCode,
+fn CliFixture::client(
+  self : CliFixture,
   environment : Map[String, String],
-) -> OpenCode {
-  OpenCode::OpenCode(
-    options=OpenCodeOptions::OpenCodeOptions(
-      opencode_path_override=self.executable,
+  config? : ConfigObject,
+) -> Client {
+  Client::Client(
+    options=ClientOptions::ClientOptions(
+      executable_path_override=self.executable,
+      config?,
       env=environment,
     ),
   )
 }
 
 ///|
-async fn FakeOpenCode::recorded_lines(
-  self : FakeOpenCode,
+async fn CliFixture::recorded_lines(
+  self : CliFixture,
   name : String,
   call : Int,
 ) -> Array[String] {
@@ -145,8 +177,8 @@ async fn FakeOpenCode::recorded_lines(
 }
 
 ///|
-async fn FakeOpenCode::recorded_text(
-  self : FakeOpenCode,
+async fn CliFixture::recorded_text(
+  self : CliFixture,
   name : String,
   call : Int,
 ) -> String {
@@ -163,7 +195,7 @@ fn completed_events(session_id : String, text : String) -> String {
 }
 
 ///|
-fn fake_opencode_script() -> String {
+fn fake_cli_script() -> String {
   let script =
     #|#!/bin/sh
     #|set -eu
@@ -182,6 +214,7 @@ fn fake_opencode_script() -> String {
     #|done
     #|/bin/cat > "$record_dir/input.$call"
     #|/usr/bin/env | /usr/bin/sort > "$record_dir/env.$call"
+    #|printf '%s' "${OPENCODE_CONFIG_CONTENT-}" > "$record_dir/config.$call"
     #|printf '%s\n' "$$" > "$record_dir/pid.$call"
     #|case "$call" in
     #|  1) events="${FAKE_OPENCODE_EVENTS_1-}" ;;
@@ -211,8 +244,8 @@ fn contains_pair(args : Array[String], key : String, value : String) -> Bool {
 }
 
 ///|
-async test "OpenCode run_streamed - emits typed events" {
-  with_fake_opencode(async fn(fixture) {
+async test "Client run_streamed - emits typed events" {
+  with_cli_fixture(async fn(fixture) {
     let thread = fixture
       .client(fixture.environment([completed_events("session-1", "Streamed")]))
       .start_thread()

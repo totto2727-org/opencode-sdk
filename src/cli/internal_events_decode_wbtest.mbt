@@ -29,6 +29,7 @@ test "ThreadEvent decode 2 - decodes completed tool use" {
       inspect(tool.call_id, content="call-1")
       inspect(tool.tool, content="bash")
       debug_inspect(tool.status, content="Completed")
+      json_inspect(tool.status.to_json(), content="completed")
     }
     _ => fail("expected tool-use event")
   }
@@ -70,6 +71,12 @@ test "ThreadEvent decode 4 - decodes step usage" {
           #|}
         ),
       )
+      json_inspect(step.usage.to_json(), content={
+        "input": 10,
+        "output": 3,
+        "reasoning": 1,
+        "cache": { "read": 2, "write": 1 },
+      })
     }
     _ => fail("expected step-finish event")
   }
