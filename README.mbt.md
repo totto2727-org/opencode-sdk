@@ -6,7 +6,7 @@ This document is the canonical module overview; maintain root `README.md` as the
 
 ## Usage
 
-Use the [CLI package guide](src/cli/README.mbt.md) for a checked client and turn example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
+Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
 
 ## Key features
 

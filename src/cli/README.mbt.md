@@ -6,35 +6,26 @@ This package document describes the CLI API; the module overview is in [root REA
 
 ## Usage
 
-Run a new OpenCode turn through the CLI package:
+Run a new OpenCode turn from an application:
 
-```mbt check
+```mbt nocheck
+///|
+import {
+  "totto2727/opencode-sdk/cli" @opencode,
+}
+
 ///|
 async fn _example() -> Unit {
-  let client = Client::Client()
+  let client = @opencode.Client::Client()
   let thread = client.start_thread()
   let turn = thread.run(
-    Input::Prompt("Explain this repository in one paragraph."),
+    @opencode.Input::Prompt("Explain this repository in one paragraph."),
   )
   println(turn.final_response)
 }
 ```
 
-The package-local checked version of the example keeps the same behavior without the external import alias:
-
-```mbt check
-///|
-async fn _checked_example() -> Unit {
-  let client = Client::Client()
-  let thread = client.start_thread()
-  let turn = thread.run(
-    Input::Prompt("Explain this repository in one paragraph."),
-  )
-  println(turn.final_response)
-}
-```
-
-Starting a thread is local and does not launch OpenCode until a turn runs:
+Starting a thread is local and does not launch OpenCode until a turn runs. The package-local check below exercises that behavior without starting an external process:
 
 ```mbt check
 ///|

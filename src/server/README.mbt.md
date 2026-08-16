@@ -11,7 +11,17 @@ Construct server options without starting a process. The server lifecycle exampl
 ```mbt check
 ///|
 test "server options have stable defaults" {
-  let _options = ServerOptions::ServerOptions()
+  debug_inspect(
+    ServerOptions::ServerOptions(),
+    content=(
+      #|{
+      #|  hostname: "127.0.0.1",
+      #|  port: 0,
+      #|  timeout_ms: 5000,
+      #|  config: Object({}),
+      #|}
+    ),
+  )
 }
 ```
 
