@@ -2,7 +2,7 @@
 
 `totto2727/opencode-sdk` provides MoonBit clients for running the OpenCode CLI and managing an OpenCode server process.
 
-This document is canonical `README.mbt.md`; maintain `README.md` as the relative symlink `README.md -> README.mbt.md`.
+This package-local canonical document is exposed through root `README.mbt.md`; root `README.md` remains the relative symlink `README.md -> README.mbt.md`.
 
 ## Usage
 
@@ -33,6 +33,14 @@ async fn _checked_example() -> Unit {
   let turn = thread.run(Input::Prompt("Explain this repository in one paragraph."))
   println(turn.final_response)
 }
+```
+
+Starting a thread is local and does not launch OpenCode until a turn runs:
+
+```mbt test
+///|
+let client = Client::Client()
+debug_inspect(client.start_thread().id(), content="None")
 ```
 
 ## Key features
@@ -71,10 +79,10 @@ import {
 
 ## Development
 
-For repository structure, target policy, development commands, and CI details, see [AGENTS.md](./AGENTS.md).
+For repository structure, target policy, development commands, and CI details, see [AGENTS.md](../../AGENTS.md).
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](../../LICENSE)
 
 _This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
