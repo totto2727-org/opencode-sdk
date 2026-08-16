@@ -8,7 +8,7 @@ This package-local canonical document is exposed through root `README.mbt.md`; r
 
 Run a new OpenCode turn through the CLI package:
 
-```mbt
+```mbt nocheck
 import {
   "totto2727/opencode-sdk/cli" @opencode,
 }
@@ -30,17 +30,21 @@ The package-local checked version of the example keeps the same behavior without
 async fn _checked_example() -> Unit {
   let client = Client::Client()
   let thread = client.start_thread()
-  let turn = thread.run(Input::Prompt("Explain this repository in one paragraph."))
+  let turn = thread.run(
+    Input::Prompt("Explain this repository in one paragraph."),
+  )
   println(turn.final_response)
 }
 ```
 
 Starting a thread is local and does not launch OpenCode until a turn runs:
 
-```mbt test
+```mbt check
 ///|
-let client = Client::Client()
-debug_inspect(client.start_thread().id(), content="None")
+test {
+  let client = Client::Client()
+  debug_inspect(client.start_thread().id(), content="None")
+}
 ```
 
 ## Key features
@@ -59,7 +63,7 @@ debug_inspect(client.start_thread().id(), content="None")
 
 1. Add the module dependency to `moon.mod`.
 
-```moonbit
+```moonbit nocheck
 import {
   "totto2727/opencode-sdk@0.4.0",
 }
@@ -67,7 +71,7 @@ import {
 
 2. Import the package needed by the application in `moon.pkg`.
 
-```moonbit
+```moonbit nocheck
 import {
   "totto2727/opencode-sdk/cli" @opencode,
 }
