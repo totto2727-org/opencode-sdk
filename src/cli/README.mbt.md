@@ -1,25 +1,20 @@
 # OpenCode SDK for MoonBit
 
-`totto2727/opencode-sdk` provides MoonBit clients for running the OpenCode CLI and managing an OpenCode server process.
+`totto2727/opencode-sdk/cli` provides a MoonBit client for running OpenCode CLI turns and receiving typed JSONL events.
 
-This package-local canonical document is exposed through root `README.mbt.md`; root `README.md` remains the relative symlink `README.md -> README.mbt.md`.
+This package document describes the CLI API; the module overview is in [root README](../../README.md).
 
 ## Usage
 
 Run a new OpenCode turn through the CLI package:
 
-```mbt nocheck
-///|
-import {
-  "totto2727/opencode-sdk/cli" @opencode,
-}
-
+```mbt check
 ///|
 async fn _example() -> Unit {
-  let client = @opencode.Client::Client()
+  let client = Client::Client()
   let thread = client.start_thread()
   let turn = thread.run(
-    @opencode.Input::Prompt("Explain this repository in one paragraph."),
+    Input::Prompt("Explain this repository in one paragraph."),
   )
   println(turn.final_response)
 }
@@ -83,7 +78,7 @@ import {
 
 ## API
 
-[Mooncakes API reference](https://mooncakes.io/docs/totto2727/opencode-sdk)
+[CLI Mooncakes API reference](https://mooncakes.io/docs/totto2727/opencode-sdk/cli)
 
 ## Development
 

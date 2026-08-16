@@ -7,7 +7,7 @@ src/cli/     OpenCode CLI client, thread, event, and process adapter
 src/server/  Native managed `opencode serve` lifecycle and health example
 ```
 
-`README.mbt.md` is the canonical end-user document and `README.md` is its relative symlink.
+`README.mbt.md` is the canonical module overview and `README.md` is its relative symlink. The detailed CLI and server API documents live at `src/cli/README.mbt.md` and `src/server/README.mbt.md`; they are package-local canonical documents without duplicate aliases.
 
 ## Development commands
 
@@ -23,8 +23,9 @@ src/server/  Native managed `opencode serve` lifecycle and health example
 - `moon test` — Run module tests, including native process tests.
 - `moon build` — Build the module for the preferred target.
 - `moon package --list` — Verify the published package layout.
-- `moon check README.mbt.md` — Validate supported MoonBit blocks in the canonical README.
-- `moon test README.mbt.md` — Validate executable README tests when the MoonBit toolchain supports the document as a package input.
+- `moon check README.mbt.md` — Validate supported MoonBit blocks in the module overview.
+- `cd src/cli && moon check README.mbt.md && moon test README.mbt.md` — Validate the CLI package document and its executable examples.
+- `cd src/server && moon check --target native README.mbt.md && moon test --target native README.mbt.md` — Validate the native server package document and its executable examples.
 
 CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `main` branch. Target-unspecified validation selects the module's preferred `wasm` target; native CLI support is declared but is not part of the regular CI gate. The managed Server package remains native-only because it depends on native process and filesystem APIs.
 
@@ -35,12 +36,14 @@ CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `
 - `src/cli` builds `opencode run --format json` invocations and decodes provider JSONL into typed `ThreadEvent` values.
 - `totto2727/agent-core-sdk/cli` owns the shared child-process lifecycle, ordered JSONL delivery, stderr capture, exit status, and cancellation cleanup.
 - `Thread::run` buffers completed text events into `Turn::final_response`; `Thread::run_streamed` delivers each event through an asynchronous callback.
+- `src/cli/README.mbt.md` owns the detailed CLI end-user API examples and links directly to the CLI Mooncakes reference.
 
 ### Managed Server package
 
 - `src/server` starts `opencode serve`, waits for its announced HTTP URL, and owns process/log cleanup.
 - `Server` does not provide an HTTP client and does not share CLI event or thread types.
 - The task group passed to `create_opencode_server` must outlive the returned `Server`; call `Server::close` inside the task-group body on success and failure.
+- `src/server/README.mbt.md` owns the detailed server end-user API examples and links directly to the server Mooncakes reference.
 
 ### Targets and development shells
 
