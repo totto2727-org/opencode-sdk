@@ -62,6 +62,11 @@ pub struct ThreadErrorEvent {
 
 ///|
 /// One typed JSONL event emitted by `opencode run --format json`.
+///
+/// Text and reasoning parts carry their session identifier. Tool-use events
+/// expose the call identifier, tool name, and terminal status. Step-finish
+/// events retain cost and token usage, while stream errors carry the provider
+/// message when OpenCode reports one.
 pub enum ThreadEvent {
   Text(TextEvent)
   Reasoning(ReasoningEvent)
