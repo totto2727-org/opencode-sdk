@@ -9,10 +9,12 @@ This package-local canonical document is exposed through root `README.mbt.md`; r
 Run a new OpenCode turn through the CLI package:
 
 ```mbt nocheck
+///|
 import {
   "totto2727/opencode-sdk/cli" @opencode,
 }
 
+///|
 async fn _example() -> Unit {
   let client = @opencode.Client::Client()
   let thread = client.start_thread()
@@ -64,6 +66,7 @@ test {
 1. Add the module dependency to `moon.mod`.
 
 ```moonbit nocheck
+///|
 import {
   "totto2727/opencode-sdk@0.4.0",
 }
@@ -72,6 +75,7 @@ import {
 2. Import the package needed by the application in `moon.pkg`.
 
 ```moonbit nocheck
+///|
 import {
   "totto2727/opencode-sdk/cli" @opencode,
 }
