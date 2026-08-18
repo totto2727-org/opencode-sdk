@@ -1,5 +1,10 @@
 ///|
 /// Options applied to every turn in one OpenCode session.
+///
+/// `model`, `agent`, `working_directory`, `variant`, and `title` map to the
+/// corresponding OpenCode CLI options. When `thinking` is true, the executor
+/// adds `--thinking` so reasoning events are delivered when OpenCode emits
+/// them.
 pub struct ThreadOptions {
   model : String?
   agent : String?

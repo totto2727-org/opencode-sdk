@@ -9,7 +9,9 @@ let startup_poll_interval_ms = 10
 ///|
 /// Options for starting an OpenCode server.
 ///
-/// When `port` is omitted, OpenCode selects an available port.
+/// When `port` is zero, OpenCode selects an available port. `timeout_ms`
+/// bounds the readiness wait, and `config` is serialized to
+/// `OPENCODE_CONFIG_CONTENT`.
 pub struct ServerOptions {
   hostname : String
   port : Int
@@ -274,6 +276,19 @@ async fn[X] create_opencode_server_with_command(
 /// The task group must outlive the returned server. The process is started as
 /// `opencode serve`, receives `OPENCODE_CONFIG_CONTENT`, and is hard-cancelled
 /// when startup fails or `close` is called.
+///
+/// The returned `Server::url` is the HTTP base URL announced by OpenCode.
+///
+/// Example:
+/// ```mbt nocheck
+/// async fn example {
+///   @async.with_task_group() <| group => {
+///     let server = @opencode.create_opencode_server(group)
+///     println(server.url())
+///     server.close()
+///   }
+/// }
+/// ```
 pub async fn[X] create_opencode_server(
   group : @async.TaskGroup[X],
   options? : ServerOptions = ServerOptions::ServerOptions(),

@@ -1,5 +1,8 @@
 ///|
 /// A completed OpenCode turn.
+///
+/// `events` contains the typed events observed during the turn. `final_response`
+/// is the concatenation of completed text parts in event order.
 pub struct Turn {
   events : ReadOnlyArray[ThreadEvent]
   final_response : String
@@ -19,6 +22,9 @@ pub type RunStreamedResult = StreamedTurn
 
 ///|
 /// One structured input entry sent to OpenCode.
+///
+/// Use `Text` for prompt content and `LocalFile` for a file forwarded through
+/// a repeated `--file` argument.
 pub(all) enum UserInput {
   Text(String)
   LocalFile(@path.Path)
@@ -26,6 +32,9 @@ pub(all) enum UserInput {
 
 ///|
 /// Input accepted by an OpenCode turn.
+///
+/// `Prompt` sends one text prompt. `UserInputs` preserves caller order for
+/// text and local-file entries while sending files through `--file`.
 pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
@@ -56,6 +65,9 @@ fn Thread::Thread(
 
 ///|
 /// Run one turn and deliver typed OpenCode events as they arrive.
+///
+/// The callback runs in the task that owns the OpenCode subprocess. Cancelling
+/// that task hard-cancels and waits for the child process before returning.
 pub async fn Thread::run_streamed(
   self : Thread,
   input : Input,
@@ -116,6 +128,9 @@ async fn Thread::run_streamed_internal(
 
 ///|
 /// Run one turn and buffer its typed events and final text response.
+///
+/// The returned `Turn::final_response` joins all completed text events in
+/// order. Stream errors raise `SdkError::TurnFailed` with the provider message.
 pub async fn Thread::run(self : Thread, input : Input) -> Turn {
   let events : Array[ThreadEvent] = []
   let texts : Array[String] = []
