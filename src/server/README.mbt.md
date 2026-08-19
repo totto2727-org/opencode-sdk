@@ -6,22 +6,16 @@ This package document describes the managed server API; the module overview is i
 
 ## Usage
 
-Construct server options without starting a process. The server lifecycle example in the API documentation shows how to run `create_opencode_server` inside a task group and close it before the group exits.
+Start a native managed OpenCode server, use its announced HTTP base URL for client integration, and close it before the task group exits. Running this flow requires the native target and an `opencode` executable on `PATH`.
 
-```mbt check
+```mbt nocheck
 ///|
-test "server options have stable defaults" {
-  debug_inspect(
-    ServerOptions::ServerOptions(),
-    content=(
-      #|{
-      #|  hostname: "127.0.0.1",
-      #|  port: 0,
-      #|  timeout_ms: 5000,
-      #|  config: Object({}),
-      #|}
-    ),
-  )
+pub async fn print_server_url() -> Unit {
+  @async.with_task_group() <| group => {
+    let server = @opencode.create_opencode_server(group)
+    println(server.url())
+    server.close()
+  }
 }
 ```
 
@@ -42,6 +36,7 @@ test "server options have stable defaults" {
 
 ```bash
 moon add totto2727/opencode-sdk@0.4.0
+moon add moonbitlang/async@0.20.3
 ```
 
 2. Import the native server package in `moon.pkg`.
@@ -49,7 +44,8 @@ moon add totto2727/opencode-sdk@0.4.0
 ```moonbit nocheck
 ///|
 import {
-  "totto2727/opencode-sdk/server",
+  "moonbitlang/async",
+  "totto2727/opencode-sdk/server" @opencode,
 }
 ```
 
