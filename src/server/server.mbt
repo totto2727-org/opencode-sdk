@@ -4,7 +4,7 @@
 let legacy_server_listening_prefix = "opencode server listening"
 
 ///|
-let server_listening_prefix = "server listening"
+let server_listening_prefix = "server listening on "
 
 ///|
 let startup_poll_interval_ms = 10
