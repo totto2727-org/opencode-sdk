@@ -49,13 +49,10 @@ test {
 
 ## Setup
 
-1. Add the module dependency to `moon.mod`.
+1. Add the published module to the MoonBit project.
 
-```moonbit nocheck
-///|
-import {
-  "totto2727/opencode-sdk@0.4.0",
-}
+```bash
+moon add totto2727/opencode-sdk@0.4.0
 ```
 
 2. Import the package needed by the application in `moon.pkg`.

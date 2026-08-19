@@ -14,6 +14,8 @@ Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and tur
 - New and resumed OpenCode sessions with configurable model, agent, directory, files, and environment.
 - Native managed `opencode serve` lifecycle with readiness URL parsing, timeout errors, and idempotent cleanup.
 
+The CLI package prefers `wasm`, also supports `native`, and raises typed `SdkError` values for invalid events, failed turns, and nonzero exits. The managed Server package is native-only and raises typed `ServerError` values for startup, readiness, exit, timeout, and cleanup failures.
+
 ## Prerequisites
 
 - **MoonBit**: Install the MoonBit toolchain.
@@ -21,13 +23,10 @@ Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and tur
 
 ## Setup
 
-1. Add the module dependency to `moon.mod`.
+1. Add the published module to the MoonBit project.
 
-```moonbit nocheck
-///|
-import {
-  "totto2727/opencode-sdk@0.4.0",
-}
+```bash
+moon add totto2727/opencode-sdk@0.4.0
 ```
 
 2. Import the package required by the application in `moon.pkg`.
