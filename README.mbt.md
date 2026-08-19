@@ -6,7 +6,7 @@
 
 Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
 
-Create a client and start a local thread before the first OpenCode turn:
+Ask OpenCode to explain a repository and return the completed response:
 
 ```mbt check
 ///|
@@ -15,9 +15,12 @@ import {
 }
 
 ///|
-test "a new thread starts without a session identifier" {
+pub async fn explain_repository() -> String {
   let client = @opencode.Client::Client()
-  debug_inspect(client.start_thread().id(), content="None")
+  let turn = client.start_thread().run(
+    @opencode.Input::Prompt("Explain this repository in one paragraph"),
+  )
+  turn.final_response
 }
 ```
 
