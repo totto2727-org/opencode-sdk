@@ -8,6 +8,21 @@ This document is the canonical module overview; maintain root `README.md` as the
 
 Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
 
+Create a client and start a local thread before the first OpenCode turn:
+
+```mbt check
+///|
+import {
+  "totto2727/opencode-sdk/cli" @opencode,
+}
+
+///|
+test "a new thread starts without a session identifier" {
+  let client = @opencode.Client::Client()
+  debug_inspect(client.start_thread().id(), content="None")
+}
+```
+
 ## Key features
 
 - Typed JSONL events and buffered or streamed turns for `opencode run --format json`.
