@@ -90,7 +90,15 @@ test "Server parse_server_url 1 - accepts accumulated readiness output" {
 }
 
 ///|
-test "panic_Server parse_server_url 2 - rejects malformed readiness output" {
+test "Server parse_server_url 2 - accepts v2 readiness output" {
+  debug_inspect(
+    parse_server_url("server listening on http://127.0.0.1:43210\n"),
+    content="Some(\"http://127.0.0.1:43210\")",
+  )
+}
+
+///|
+test "panic_Server parse_server_url 3 - rejects malformed readiness output" {
   try! (parse_server_url("opencode server listening without a url") |> ignore)
 }
 
