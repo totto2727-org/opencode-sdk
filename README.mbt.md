@@ -2,8 +2,6 @@
 
 `totto2727/opencode-sdk` provides MoonBit SDKs for running OpenCode through its CLI and managing an OpenCode server process.
 
-This document is the canonical module overview; maintain root `README.md` as the relative symlink `README.md -> README.mbt.md`.
-
 ## Usage
 
 Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
