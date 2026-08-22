@@ -4,7 +4,7 @@
 
 ## Usage
 
-Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
+The inline CLI example is the common consumer flow. For package-distinct checked behavior, use the [CLI thread flows](src/cli/test/thread_test.mbt) or the [managed Server health example](src/server/examples/health/main.mbt).
 
 Ask OpenCode to explain a repository and return the completed response:
 
@@ -55,6 +55,20 @@ import {
 ```
 
 Use `totto2727/opencode-sdk/server` for the native managed server package.
+
+3. When using the native Server package, add its direct async dependency and import both packages.
+
+```bash
+moon add moonbitlang/async@0.20.3
+```
+
+```moonbit nocheck
+///|
+import {
+  "moonbitlang/async",
+  "totto2727/opencode-sdk/server" @opencode,
+}
+```
 
 ## API
 

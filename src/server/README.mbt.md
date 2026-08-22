@@ -1,64 +1,20 @@
 # OpenCode Server SDK for MoonBit
 
-`totto2727/opencode-sdk/server` starts and stops a native `opencode serve` process and returns the HTTP base URL announced during readiness.
+`totto2727/opencode-sdk/server` starts and stops a native `opencode serve` process and returns its announced HTTP base URL.
 
-This package document describes the managed server API; the module overview is in [root README](../../README.md).
+Consumer prerequisites, dependencies, imports, and the common SDK usage are documented in the root [Setup](../../README.mbt.md#setup) and [Usage](../../README.mbt.md#usage).
 
-## Usage
+## Package role
 
-Start a native managed OpenCode server, use its announced HTTP base URL for client integration, and close it before the task group exits. Running this flow requires the native target and an `opencode` executable on `PATH`.
+- Starts `opencode serve` with hostname, port, timeout, and JSON configuration options on the native target.
+- Accepts supported legacy and v2 readiness output, then exposes the validated HTTP URL through `Server::url`.
+- Reports startup, timeout, malformed-output, exit, and cleanup failures as typed `ServerError` values.
+- Owns process waiting and temporary log cleanup through idempotent `Server::close`.
 
-```mbt nocheck
-///|
-pub async fn print_server_url() -> Unit {
-  @async.with_task_group() <| group => {
-    let server = @opencode.create_opencode_server(group)
-    println(server.url())
-    server.close()
-  }
-}
-```
+## Runnable example
 
-## Key features
-
-- Starts `opencode serve` with hostname, port, timeout, and JSON configuration options.
-- Waits for the readiness URL and reports startup, timeout, malformed-output, exit, and cleanup failures as typed `ServerError` values.
-- Owns process waiting and temporary log cleanup through `Server::close`, which is safe to call more than once.
-
-## Prerequisites
-
-- **MoonBit**: Install the MoonBit toolchain with native target support.
-- **OpenCode**: Install the `opencode` executable and make it available on `PATH`.
-
-## Setup
-
-1. Add the published module to the MoonBit project.
-
-```bash
-moon add totto2727/opencode-sdk@0.4.0
-moon add moonbitlang/async@0.20.3
-```
-
-2. Import the native server package in `moon.pkg`.
-
-```moonbit nocheck
-///|
-import {
-  "moonbitlang/async",
-  "totto2727/opencode-sdk/server" @opencode,
-}
-```
+See the [managed Server health example](./examples/health/main.mbt) for the complete create, announced-URL, and close lifecycle.
 
 ## API
 
-[Server Mooncakes API reference](https://mooncakes.io/docs/totto2727/opencode-sdk/server)
-
-## Development
-
-For repository targets and executable package checks, see [AGENTS.md](../../AGENTS.md).
-
-## License
-
-[MIT](../../LICENSE)
-
-_This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
+[Mooncakes API reference for `totto2727/opencode-sdk/server`](https://mooncakes.io/docs/totto2727/opencode-sdk/server)
