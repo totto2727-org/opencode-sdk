@@ -2,17 +2,35 @@
 
 `totto2727/opencode-sdk` provides MoonBit SDKs for running OpenCode through its CLI and managing an OpenCode server process.
 
-This document is the canonical module overview; maintain root `README.md` as the relative symlink `README.md -> README.mbt.md`.
-
 ## Usage
 
-Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and turn example plus a checked local lifecycle example, or the [server package guide](src/server/README.mbt.md) for a checked server-options example.
+The inline CLI example is the common consumer flow. For package-distinct checked behavior, use the [CLI thread flows](src/cli/test/thread_test.mbt) or the [managed Server health example](src/server/examples/health/main.mbt).
+
+Ask OpenCode to explain a repository and return the completed response:
+
+```mbt check
+///|
+import {
+  "totto2727/opencode-sdk/cli" @opencode,
+}
+
+///|
+pub async fn explain_repository() -> String {
+  let client = @opencode.Client::Client()
+  let turn = client.start_thread().run(
+    @opencode.Input::Prompt("Explain this repository in one paragraph"),
+  )
+  turn.final_response
+}
+```
 
 ## Key features
 
 - Typed JSONL events and buffered or streamed turns for `opencode run --format json`.
 - New and resumed OpenCode sessions with configurable model, agent, directory, files, and environment.
 - Native managed `opencode serve` lifecycle with readiness URL parsing, timeout errors, and idempotent cleanup.
+
+The CLI package prefers `wasm`, also supports `native`, and raises typed `SdkError` values for invalid events, failed turns, and nonzero exits. The managed Server package is native-only and raises typed `ServerError` values for startup, readiness, exit, timeout, and cleanup failures.
 
 ## Prerequisites
 
@@ -21,13 +39,10 @@ Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and tur
 
 ## Setup
 
-1. Add the module dependency to `moon.mod`.
+1. Add the published module to the MoonBit project.
 
-```moonbit nocheck
-///|
-import {
-  "totto2727/opencode-sdk@0.4.0",
-}
+```bash
+moon add totto2727/opencode-sdk@0.4.0
 ```
 
 2. Import the package required by the application in `moon.pkg`.
@@ -40,6 +55,20 @@ import {
 ```
 
 Use `totto2727/opencode-sdk/server` for the native managed server package.
+
+3. When using the native Server package, add its direct async dependency and import both packages.
+
+```bash
+moon add moonbitlang/async@0.20.3
+```
+
+```moonbit nocheck
+///|
+import {
+  "moonbitlang/async",
+  "totto2727/opencode-sdk/server" @opencode,
+}
+```
 
 ## API
 

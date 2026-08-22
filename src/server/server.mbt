@@ -1,7 +1,10 @@
 ///|
 // Copied from the OpenCode TypeScript SDK defaults and option shape:
 // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L5-L30
-let server_listening_prefix = "opencode server listening"
+let legacy_server_listening_prefix = "opencode server listening"
+
+///|
+let server_listening_prefix = "server listening on "
 
 ///|
 let startup_poll_interval_ms = 10
@@ -68,7 +71,8 @@ fn parse_server_url(output : String) -> String? raise ServerError {
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L49-L71
   for line_view in output.split("\n") {
     let line = line_view.trim().to_owned()
-    if line.has_prefix(server_listening_prefix) {
+    if line.has_prefix(legacy_server_listening_prefix) ||
+      line.has_prefix(server_listening_prefix) {
       match line.find(" on ") {
         Some(index) => {
           let url = line[index + 4:].trim().to_owned()
