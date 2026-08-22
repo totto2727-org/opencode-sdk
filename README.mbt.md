@@ -26,7 +26,7 @@ Use the [CLI package guide](src/cli/README.mbt.md) for a consumer client and tur
 ```moonbit nocheck
 ///|
 import {
-  "totto2727/opencode-sdk@0.4.0",
+  "totto2727/opencode-sdk@0.4.1",
 }
 ```
 

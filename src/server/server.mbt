@@ -256,17 +256,13 @@ async fn[X] create_opencode_server_with_command(
       )
     }
   }
+  errdefer cleanup_start_failure(process, log_dir)
   let url = wait_for_server(
     process,
     stdout_path,
     stderr_path,
     options.timeout_ms,
-  ) catch {
-    err => {
-      cleanup_start_failure(process, log_dir)
-      raise err
-    }
-  }
+  )
   { url, process, log_dir, closed: false }
 }
 
