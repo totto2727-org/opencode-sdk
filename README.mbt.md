@@ -2,8 +2,8 @@
 moonbit:
   backend: wasm
   import:
-    - path: moonbitlang/async@0.20.3
-    - path: totto2727/opencode-sdk@0.4.0/cli
+    - path: moonbitlang/async@0.21.0
+    - path: totto2727/opencode-sdk@0.4.1/cli
       alias: opencode
 ---
 
@@ -46,7 +46,7 @@ The CLI package prefers `wasm`, also supports `native`, and raises typed `SdkErr
 1. Add the published module to the MoonBit project.
 
 ```bash
-moon add totto2727/opencode-sdk@0.4.0
+moon add totto2727/opencode-sdk@0.4.1
 ```
 
 2. Import the package required by the application in `moon.pkg`.
@@ -63,7 +63,7 @@ Use `totto2727/opencode-sdk/server` for the native managed server package.
 3. When using the native Server package, add its direct async dependency and import both packages.
 
 ```bash
-moon add moonbitlang/async@0.20.3
+moon add moonbitlang/async@0.21.0
 ```
 
 ```moonbit nocheck
