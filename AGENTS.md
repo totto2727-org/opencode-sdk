@@ -23,9 +23,9 @@ src/server/  Native managed `opencode serve` lifecycle and health example
 - `moon test` — Run module tests, including native process tests.
 - `moon build` — Build the module for the preferred target.
 - `moon package --list` — Verify the published package layout.
-- `moon check README.mbt.md` — Validate supported MoonBit blocks in the module overview.
-- `cd src/cli && moon check README.mbt.md && moon test README.mbt.md` — Validate the CLI package document and its executable examples.
-- `cd src/server && moon check --target native README.mbt.md && moon test --target native README.mbt.md` — Validate the native server package document and its executable examples.
+- `moon -C /tmp check "$PWD/README.mbt.md"` — Compile the module overview's standalone MoonBit blocks with its front-matter imports.
+- `moon check src/cli && moon test src/cli` — Validate the CLI package and its checked flows.
+- `moon check --target native src/server && moon test --target native src/server` — Validate the native Server package and its checked flows.
 
 CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `main` branch. Target-unspecified validation selects the module's preferred `wasm` target; native CLI support is declared but is not part of the regular CI gate. The managed Server package remains native-only because it depends on native process and filesystem APIs.
 
