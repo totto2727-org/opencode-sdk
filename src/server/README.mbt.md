@@ -11,10 +11,12 @@ Consumer prerequisites, dependencies, imports, and the common SDK usage are docu
 - Reports startup, timeout, malformed-output, exit, and cleanup failures as typed `ServerError` values.
 - Owns process waiting and temporary log cleanup through idempotent `Server::close`.
 
-## Runnable example
+## Usage
 
 See the [managed Server health example](./examples/health/main.mbt) for the complete create, announced-URL, and close lifecycle.
 
 ## API
 
 [Mooncakes API reference for `totto2727/opencode-sdk/server`](https://mooncakes.io/docs/totto2727/opencode-sdk/server)
+
+_This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
