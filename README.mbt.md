@@ -1,3 +1,12 @@
+---
+moonbit:
+  backend: wasm
+  import:
+    - path: moonbitlang/async@0.20.3
+    - path: totto2727/opencode-sdk@0.4.0/cli
+      alias: opencode
+---
+
 # OpenCode SDK for MoonBit
 
 `totto2727/opencode-sdk` provides MoonBit SDKs for running OpenCode through its CLI and managing an OpenCode server process.
@@ -10,17 +19,12 @@ Ask OpenCode to explain a repository and return the completed response:
 
 ```mbt check
 ///|
-import {
-  "totto2727/opencode-sdk/cli" @opencode,
-}
-
-///|
-pub async fn explain_repository() -> String {
+async test "CLI usage - requests a repository explanation" {
   let client = @opencode.Client::Client()
   let turn = client.start_thread().run(
     @opencode.Input::Prompt("Explain this repository in one paragraph"),
   )
-  turn.final_response
+  println(turn.final_response)
 }
 ```
 
