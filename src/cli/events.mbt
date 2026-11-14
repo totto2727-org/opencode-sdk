@@ -1,64 +1,72 @@
 ///|
 /// A completed text part emitted by OpenCode.
+#derive(Debug, Eq)
 pub struct TextEvent {
   session_id : String
   text : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// A completed reasoning part emitted when thinking output is enabled.
+#derive(Debug, Eq)
 pub struct ReasoningEvent {
   session_id : String
   text : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// The terminal or active state of an OpenCode tool call.
+#derive(Debug, Eq)
 pub enum ToolUseStatus {
   Completed
   Failed
-} derive(Debug, Eq)
+}
 
 ///|
 /// A tool-use part emitted by OpenCode.
+#derive(Debug, Eq)
 pub struct ToolUseEvent {
   session_id : String
   call_id : String
   tool : String
   status : ToolUseStatus
-} derive(Debug, Eq)
+}
 
 ///|
 /// A marker emitted when OpenCode begins a model step.
+#derive(Debug, Eq)
 pub struct StepStartEvent {
   session_id : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// Token usage reported when OpenCode finishes a model step.
+#derive(Debug, Eq)
 pub struct Usage {
-  input_tokens : Int
-  output_tokens : Int
-  reasoning_tokens : Int
-  cache_read_tokens : Int
-  cache_write_tokens : Int
-} derive(Debug, Eq)
+  input_tokens : Int32
+  output_tokens : Int32
+  reasoning_tokens : Int32
+  cache_read_tokens : Int32
+  cache_write_tokens : Int32
+}
 
 ///|
 /// A marker and usage payload emitted when OpenCode finishes a model step.
+#derive(Debug, Eq)
 pub struct StepFinishEvent {
   session_id : String
   reason : String
   cost : Double
   usage : Usage
-} derive(Debug, Eq)
+}
 
 ///|
 /// A fatal error emitted by the OpenCode event stream.
+#derive(Debug, Eq)
 pub struct ThreadErrorEvent {
   session_id : String?
   message : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// One typed JSONL event emitted by `opencode run --format json`.
@@ -67,6 +75,7 @@ pub struct ThreadErrorEvent {
 /// expose the call identifier, tool name, and terminal status. Step-finish
 /// events retain cost and token usage, while stream errors carry the provider
 /// message when OpenCode reports one.
+#derive(Debug, Eq)
 pub enum ThreadEvent {
   Text(TextEvent)
   Reasoning(ReasoningEvent)
@@ -74,4 +83,4 @@ pub enum ThreadEvent {
   StepStart(StepStartEvent)
   StepFinish(StepFinishEvent)
   StreamError(ThreadErrorEvent)
-} derive(Debug, Eq)
+}

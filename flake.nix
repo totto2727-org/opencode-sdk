@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     moonbit-overlay = {
-      url = "github:totto2727-org/moonbit-overlay";
+      url = "github:moonbit-community/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     opencode = {
@@ -45,7 +45,7 @@
         rec {
           default = pkgs.mkShell {
             packages = [
-              pkgs.moonbit-bin.moonbit.latest
+              pkgs.moonbit-bin.latest
             ];
             shellHook = ''
               # Enable Git Hook
