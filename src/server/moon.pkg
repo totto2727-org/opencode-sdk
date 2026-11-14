@@ -4,12 +4,11 @@ import {
   "moonbitlang/async/process",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
-  "moonbitlang/core/string",
   "totto2727/lens",
 }
 
 import {
-  "moonbitlang/core/test",
-} for "test"
+  "moonbitlang/core/string",
+} for "wbtest"
 
 supported_targets = "native"

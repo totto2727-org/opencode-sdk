@@ -40,12 +40,12 @@ fn fixture_env(root : String, mode : String) -> Map[String, String] {
 }
 
 ///|
-async fn fixture_pid(root : String) -> Int {
+async fn fixture_pid(root : String) -> Int32 {
   @string.parse_int(@fs.read_file("\{root}/pid").text().trim(), base=10)
 }
 
 ///|
-async fn process_is_running(pid : Int) -> Bool {
+async fn process_is_running(pid : Int32) -> Bool {
   let (code, _, _) = @process.collect_output("kill", ["-0", pid.to_string()])
   code == 0
 }
@@ -72,7 +72,7 @@ test "Server server_args 1 - forwards config log level" {
   let options = ServerOptions::ServerOptions(
     hostname="0.0.0.0",
     port=8080,
-    config=Json::object({ "logLevel": "debug".to_json() }),
+    config=Json::object({ "logLevel": ToJson::to_json("debug") }),
   )
   json_inspect(server_args(options), content=[
     "serve", "--hostname=0.0.0.0", "--port=8080", "--log-level=debug",
@@ -117,8 +117,8 @@ async test "Server create 1 - starts from readiness and closes idempotently" {
     group.add_defer(() => @fs.rmdir(root, recursive=true))
     let command = write_fake_opencode(root)
     let config = Json::object({
-      "logLevel": "debug".to_json(),
-      "model": "test/model".to_json(),
+      "logLevel": ToJson::to_json("debug"),
+      "model": ToJson::to_json("test/model"),
     })
     let server = create_opencode_server(
       group,

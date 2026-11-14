@@ -1,9 +1,7 @@
 supported_targets = "+wasm+native"
 
 import {
-  "moonbitlang/core/debug",
   "moonbitlang/core/json",
-  "moonbitlang/core/string",
   "moonbitlang/x/path",
   "totto2727/agent-core-sdk/cli" @agent_cli,
   "totto2727/copy",
@@ -11,5 +9,5 @@ import {
 }
 
 import {
-  "moonbitlang/core/test",
+  "moonbitlang/core/debug",
 } for "wbtest"

@@ -3,10 +3,11 @@
 ///
 /// `events` contains the typed events observed during the turn. `final_response`
 /// is the concatenation of completed text parts in event order.
+#derive(Debug, Eq)
 pub struct Turn {
   events : ReadOnlyArray[ThreadEvent]
   final_response : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// Alias describing the result returned by `Thread::run`.
@@ -25,20 +26,22 @@ pub type RunStreamedResult = StreamedTurn
 ///
 /// Use `Text` for prompt content and `LocalFile` for a file forwarded through
 /// a repeated `--file` argument.
+#derive(Eq)
 pub(all) enum UserInput {
   Text(String)
   LocalFile(@path.Path)
-} derive(Eq)
+}
 
 ///|
 /// Input accepted by an OpenCode turn.
 ///
 /// `Prompt` sends one text prompt. `UserInputs` preserves caller order for
 /// text and local-file entries while sending files through `--file`.
+#derive(Eq)
 pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
-} derive(Eq)
+}
 
 ///|
 /// One persisted OpenCode session.
@@ -60,7 +63,7 @@ fn Thread::Thread(
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {
-  { exec, id_value: id, thread_options }
+  { exec, id_value: id, thread_options, }
 }
 
 ///|
@@ -141,7 +144,7 @@ pub async fn Thread::run(self : Thread, input : Input) -> Turn {
     }
     true
   })
-  { events: ReadOnlyArray::from_array(events), final_response: texts.join("") }
+  { events: ReadOnlyArray::from_array(events), final_response: texts.join(""), }
 }
 
 ///|
@@ -153,7 +156,7 @@ priv struct MoonBitInternalNormalizedInput {
 ///|
 fn normalize_input(input : Input) -> MoonBitInternalNormalizedInput {
   match input {
-    Prompt(prompt) => { prompt, files: [] }
+    Prompt(prompt) => { prompt, files: [], }
     UserInputs(items) => {
       let prompt = items
         .iter()
@@ -173,7 +176,7 @@ fn normalize_input(input : Input) -> MoonBitInternalNormalizedInput {
           }
         })
         .collect()
-      { prompt, files }
+      { prompt, files, }
     }
   }
 }

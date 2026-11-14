@@ -45,7 +45,7 @@
         rec {
           default = pkgs.mkShell {
             packages = [
-              pkgs.moonbit-bin."v0.10.9+6e6c44045+fc2a4ee"
+              pkgs.moonbit-bin.latest
             ];
             shellHook = ''
               # Enable Git Hook

@@ -24,7 +24,7 @@ pub struct Client {
 /// println(turn.final_response)
 /// ```
 pub fn Client::Client(
-  options? : ClientOptions = ClientOptions::ClientOptions(),
+  options~ : ClientOptions = ClientOptions::ClientOptions(),
 ) -> Client {
   {
     exec: Exec::Exec(
@@ -42,7 +42,7 @@ pub fn Client::Client(
 /// first event arrives.
 pub fn Client::start_thread(
   self : Client,
-  options? : ThreadOptions = ThreadOptions::ThreadOptions(),
+  options~ : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
   Thread::Thread(self.exec, options)
 }
@@ -54,7 +54,7 @@ pub fn Client::start_thread(
 pub fn Client::resume_thread(
   self : Client,
   id : String,
-  options? : ThreadOptions = ThreadOptions::ThreadOptions(),
+  options~ : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
   Thread::Thread(self.exec, options, id~)
 }
