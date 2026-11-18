@@ -52,9 +52,14 @@
               vp config
             '';
           };
-          ci = pkgs.mkShell {
-            inputsFrom = [ (default.overrideAttrs (_: { shellHook = ""; })) ];
+          ci-tools = pkgs.mkShell {
             packages = [ pkgs.opencode ];
+          };
+          ci = pkgs.mkShell {
+            inputsFrom = [
+              (default.overrideAttrs (_: { shellHook = ""; }))
+              ci-tools
+            ];
           };
         }
       );

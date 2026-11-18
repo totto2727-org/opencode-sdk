@@ -27,7 +27,7 @@ src/server/  Native managed `opencode serve` lifecycle and health example
 - `moon check src/cli && moon test src/cli` — Validate the CLI package and its checked flows.
 - `moon check --target native src/server && moon test --target native src/server` — Validate the native Server package and its checked flows.
 
-CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `main` branch. Target-unspecified validation selects the module's preferred `wasm` target; native CLI support is declared but is not part of the regular CI gate. The managed Server package remains native-only because it depends on native process and filesystem APIs.
+CI uses the shared Nix setup and `ci-tools` shell for OpenCode only. Pinned shared actions install stable MoonBit and run validation. Without a target override, validation selects the module's preferred `wasm` target. Native CLI support is declared but is not part of the regular CI gate. The managed Server package remains native-only because it depends on native process and filesystem APIs.
 
 ## Architecture
 
@@ -53,7 +53,7 @@ CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `
 ## Development tools
 
 - **MoonBit**: Provides module checks, tests, builds, package generation, and Mooncakes documentation.
-- **Nix**: Provides the pinned development shell and the CI shell with the OpenCode executable.
+- **Nix**: Provides the pinned development shell and the OpenCode-only `ci-tools` shell for GitHub Actions. Publishing uses stable MoonBit without Nix.
 - **Mooncakes**: Publishes the module and hosts the generated API reference at [totto2727/opencode-sdk](https://mooncakes.io/docs/totto2727/opencode-sdk).
 
 ## Package-specific rules
