@@ -42,7 +42,7 @@
         let
           pkgs = mkPkgs system;
         in
-        rec {
+        {
           default = pkgs.mkShell {
             packages = [
               pkgs.moonbit-bin.moonbit.latest
@@ -52,14 +52,8 @@
               vp config
             '';
           };
-          ci-tools = pkgs.mkShell {
-            packages = [ pkgs.opencode ];
-          };
           ci = pkgs.mkShell {
-            inputsFrom = [
-              (default.overrideAttrs (_: { shellHook = ""; }))
-              ci-tools
-            ];
+            packages = [ pkgs.opencode ];
           };
         }
       );
