@@ -16,6 +16,9 @@ pub struct ThreadOptions {
 }
 
 ///|
+pub extend ThreadOptions with Eq::{not_equal, equal}
+
+///|
 /// Construct optional OpenCode session settings.
 pub fn ThreadOptions::ThreadOptions(
   model? : String,

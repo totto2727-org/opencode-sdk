@@ -19,6 +19,9 @@ pub struct ClientOptions {
 }
 
 ///|
+pub extend ClientOptions with Eq::{not_equal, equal}
+
+///|
 /// Construct client-wide OpenCode CLI options.
 pub fn ClientOptions::ClientOptions(
   executable_path_override? : @path.Path,

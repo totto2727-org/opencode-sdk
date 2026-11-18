@@ -81,12 +81,18 @@ pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
 }
 
 ///|
+pub extend TextEvent with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
   {
     session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
     text: event_part_text_lens_.get_or_json_decode_error(json, path),
   }
 }
+
+///|
+pub extend ReasoningEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
@@ -101,12 +107,18 @@ pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
 }
 
 ///|
+pub extend ToolUseStatus with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for ToolUseStatus with fn to_json(self) {
   match self {
     Completed => ToJson::to_json("completed")
     Failed => ToJson::to_json("error")
   }
 }
+
+///|
+pub extend ToolUseStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
@@ -119,9 +131,15 @@ pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
 }
 
 ///|
+pub extend ToolUseEvent with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
   { session_id: event_session_id_lens_.get_or_json_decode_error(json, path), }
 }
+
+///|
+pub extend StepStartEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
@@ -139,6 +157,9 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
 }
 
 ///|
+pub extend Usage with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for Usage with fn to_json(self) {
   Json::object({
     "input": ToJson::to_json(self.input_tokens),
@@ -152,6 +173,9 @@ pub impl ToJson for Usage with fn to_json(self) {
 }
 
 ///|
+pub extend Usage with ToJson::{to_json}
+
+///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
   {
     session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
@@ -160,6 +184,9 @@ pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
     usage: event_part_tokens_lens_.get_or_json_decode_error(json, path),
   }
 }
+
+///|
+pub extend StepFinishEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
@@ -174,6 +201,9 @@ pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
     message: data_message,
   }
 }
+
+///|
+pub extend ThreadErrorEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
@@ -192,6 +222,9 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
       )
   }
 }
+
+///|
+pub extend ThreadEvent with @json.FromJson::{from_json}
 
 ///|
 /// Return the session identifier carried by an event, when present.

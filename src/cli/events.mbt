@@ -7,6 +7,12 @@ pub struct TextEvent {
 }
 
 ///|
+pub extend TextEvent with Debug::{to_repr}
+
+///|
+pub extend TextEvent with Eq::{not_equal, equal}
+
+///|
 /// A completed reasoning part emitted when thinking output is enabled.
 #derive(Debug, Eq)
 pub struct ReasoningEvent {
@@ -15,12 +21,24 @@ pub struct ReasoningEvent {
 }
 
 ///|
+pub extend ReasoningEvent with Debug::{to_repr}
+
+///|
+pub extend ReasoningEvent with Eq::{not_equal, equal}
+
+///|
 /// The terminal or active state of an OpenCode tool call.
 #derive(Debug, Eq)
 pub enum ToolUseStatus {
   Completed
   Failed
 }
+
+///|
+pub extend ToolUseStatus with Debug::{to_repr}
+
+///|
+pub extend ToolUseStatus with Eq::{not_equal, equal}
 
 ///|
 /// A tool-use part emitted by OpenCode.
@@ -33,11 +51,23 @@ pub struct ToolUseEvent {
 }
 
 ///|
+pub extend ToolUseEvent with Debug::{to_repr}
+
+///|
+pub extend ToolUseEvent with Eq::{not_equal, equal}
+
+///|
 /// A marker emitted when OpenCode begins a model step.
 #derive(Debug, Eq)
 pub struct StepStartEvent {
   session_id : String
 }
+
+///|
+pub extend StepStartEvent with Debug::{to_repr}
+
+///|
+pub extend StepStartEvent with Eq::{not_equal, equal}
 
 ///|
 /// Token usage reported when OpenCode finishes a model step.
@@ -51,6 +81,12 @@ pub struct Usage {
 }
 
 ///|
+pub extend Usage with Debug::{to_repr}
+
+///|
+pub extend Usage with Eq::{not_equal, equal}
+
+///|
 /// A marker and usage payload emitted when OpenCode finishes a model step.
 #derive(Debug, Eq)
 pub struct StepFinishEvent {
@@ -61,12 +97,24 @@ pub struct StepFinishEvent {
 }
 
 ///|
+pub extend StepFinishEvent with Debug::{to_repr}
+
+///|
+pub extend StepFinishEvent with Eq::{not_equal, equal}
+
+///|
 /// A fatal error emitted by the OpenCode event stream.
 #derive(Debug, Eq)
 pub struct ThreadErrorEvent {
   session_id : String?
   message : String
 }
+
+///|
+pub extend ThreadErrorEvent with Debug::{to_repr}
+
+///|
+pub extend ThreadErrorEvent with Eq::{not_equal, equal}
 
 ///|
 /// One typed JSONL event emitted by `opencode run --format json`.
@@ -84,3 +132,9 @@ pub enum ThreadEvent {
   StepFinish(StepFinishEvent)
   StreamError(ThreadErrorEvent)
 }
+
+///|
+pub extend ThreadEvent with Debug::{to_repr}
+
+///|
+pub extend ThreadEvent with Eq::{not_equal, equal}

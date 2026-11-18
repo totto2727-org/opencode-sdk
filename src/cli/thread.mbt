@@ -10,6 +10,12 @@ pub struct Turn {
 }
 
 ///|
+pub extend Turn with Debug::{to_repr}
+
+///|
+pub extend Turn with Eq::{not_equal, equal}
+
+///|
 /// Alias describing the result returned by `Thread::run`.
 pub type RunResult = Turn
 
@@ -33,6 +39,9 @@ pub(all) enum UserInput {
 }
 
 ///|
+pub extend UserInput with Eq::{not_equal, equal}
+
+///|
 /// Input accepted by an OpenCode turn.
 ///
 /// `Prompt` sends one text prompt. `UserInputs` preserves caller order for
@@ -42,6 +51,9 @@ pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
 }
+
+///|
+pub extend Input with Eq::{not_equal, equal}
 
 ///|
 /// One persisted OpenCode session.
