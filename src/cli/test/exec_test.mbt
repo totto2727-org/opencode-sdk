@@ -83,7 +83,7 @@ async test "Exec run - stops the child when cancelled" {
       wait_for_test_file(pid_path)
       let pid = @string.parse_int(
         @fs.read_file(pid_path).text().trim(),
-        base=10,
+        radix=10,
       )
       assert_true(process_is_running(pid))
       task.cancel()

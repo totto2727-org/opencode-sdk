@@ -41,7 +41,7 @@ fn fixture_env(root : String, mode : String) -> Map[String, String] {
 
 ///|
 async fn fixture_pid(root : String) -> Int32 {
-  @string.parse_int(@fs.read_file("\{root}/pid").text().trim(), base=10)
+  @string.parse_int(@fs.read_file("\{root}/pid").text().trim(), radix=10)
 }
 
 ///|
