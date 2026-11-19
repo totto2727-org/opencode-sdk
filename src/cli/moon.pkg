@@ -5,7 +5,7 @@ import {
   "moonbitlang/x/path",
   "totto2727/agent-core-sdk/cli" @agent_cli,
   "totto2727/copy",
-  "totto2727/lens",
+  "totto2727/serde",
 }
 
 import {
