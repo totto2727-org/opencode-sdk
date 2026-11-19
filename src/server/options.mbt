@@ -1,17 +1,7 @@
 ///|
-let server_log_level_lens : @lens.PresenceLens[String] = @lens.root()
-  .string("logLevel")
-  .optional()
-
-///|
+#custom.serde(decode_only, rename_all="camelCase")
 priv struct ServerConfig {
   log_level : String?
-}
-
-///|
-impl FromJson for ServerConfig with fn from_json(json, _path) {
-  let log_level = server_log_level_lens.get(json) catch { _ => None }
-  { log_level, }
 }
 
 ///|

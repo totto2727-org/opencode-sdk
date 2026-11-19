@@ -80,6 +80,16 @@ test "Server server_args 1 - forwards config log level" {
 }
 
 ///|
+test "Server ignores absent and malformed log levels" {
+  let configs : Array[Json] = [Json::null(), {}, { "logLevel": Json::null() }, { "logLevel": 5 }]
+  for config in configs {
+    json_inspect(server_args(ServerOptions::ServerOptions(config~)), content=[
+      "serve", "--hostname=127.0.0.1", "--port=0",
+    ])
+  }
+}
+
+///|
 test "Server parse_server_url 1 - accepts accumulated readiness output" {
   debug_inspect(
     parse_server_url(

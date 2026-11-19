@@ -1,83 +1,7 @@
 ///|
-let event_session_id_lens_ : @lens.Lens[String] = @lens.root().string(
-  "sessionID",
-)
-
-///|
-let event_part_text_lens_ : @lens.Lens[String] = @lens.root()
-  .object("part")
-  .string("text")
-
-///|
-let event_part_call_id_lens_ : @lens.Lens[String] = @lens.root()
-  .object("part")
-  .string("callID")
-
-///|
-let event_part_tool_lens_ : @lens.Lens[String] = @lens.root()
-  .object("part")
-  .string("tool")
-
-///|
-let event_part_status_lens_ : @lens.Lens[ToolUseStatus] = @lens.root()
-  .object("part")
-  .object("state")
-  .custom("status")
-
-///|
-let usage_input_lens_ : @lens.Lens[Int32] = @lens.root().int("input")
-
-///|
-let usage_output_lens_ : @lens.Lens[Int32] = @lens.root().int("output")
-
-///|
-let usage_reasoning_lens_ : @lens.Lens[Int32] = @lens.root().int("reasoning")
-
-///|
-let usage_cache_read_lens_ : @lens.Lens[Int32] = @lens.root()
-  .object("cache")
-  .int("read")
-
-///|
-let usage_cache_write_lens_ : @lens.Lens[Int32] = @lens.root()
-  .object("cache")
-  .int("write")
-
-///|
-let event_part_reason_lens_ : @lens.Lens[String] = @lens.root()
-  .object("part")
-  .string("reason")
-
-///|
-let event_part_cost_lens_ : @lens.Lens[Double] = @lens.root()
-  .object("part")
-  .number("cost")
-
-///|
-let event_part_tokens_lens_ : @lens.Lens[Usage] = @lens.root()
-  .object("part")
-  .custom("tokens")
-
-///|
-let event_error_name_lens_ : @lens.Lens[String] = @lens.root()
-  .object("error")
-  .string("name")
-
-///|
-let event_error_message_lens_ : @lens.Lens[String] = @lens.root()
-  .object("error")
-  .object("data")
-  .string("message")
-
-///|
-let thread_event_type_lens_ : @lens.Lens[String] = @lens.root().string("type")
-
-///|
 pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
-  {
-    session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
-    text: event_part_text_lens_.get_or_json_decode_error(json, path),
-  }
+  let wire : TextWire_ = decode_event_wire_(json, path)
+  { session_id: wire.session_id, text: wire.text }
 }
 
 ///|
@@ -85,10 +9,8 @@ pub extend TextEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
-  {
-    session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
-    text: event_part_text_lens_.get_or_json_decode_error(json, path),
-  }
+  let wire : TextWire_ = decode_event_wire_(json, path)
+  { session_id: wire.session_id, text: wire.text }
 }
 
 ///|
@@ -122,12 +44,8 @@ pub extend ToolUseStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
-  {
-    session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
-    call_id: event_part_call_id_lens_.get_or_json_decode_error(json, path),
-    tool: event_part_tool_lens_.get_or_json_decode_error(json, path),
-    status: event_part_status_lens_.get_or_json_decode_error(json, path),
-  }
+  let wire : ToolUseWire_ = decode_event_wire_(json, path)
+  { session_id: wire.session_id, call_id: wire.call_id, tool: wire.tool, status: wire.status }
 }
 
 ///|
@@ -135,7 +53,8 @@ pub extend ToolUseEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
-  { session_id: event_session_id_lens_.get_or_json_decode_error(json, path), }
+  let wire : SessionWire_ = decode_event_wire_(json, path)
+  { session_id: wire.session_id }
 }
 
 ///|
@@ -143,16 +62,13 @@ pub extend StepStartEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
+  let wire : UsageWire_ = decode_event_wire_(json, path)
   {
-    input_tokens: usage_input_lens_.get_or_json_decode_error(json, path),
-    output_tokens: usage_output_lens_.get_or_json_decode_error(json, path),
-    reasoning_tokens: usage_reasoning_lens_.get_or_json_decode_error(json, path),
-    cache_read_tokens: usage_cache_read_lens_.get_or_json_decode_error(
-      json, path,
-    ),
-    cache_write_tokens: usage_cache_write_lens_.get_or_json_decode_error(
-      json, path,
-    ),
+    input_tokens: wire.input.0,
+    output_tokens: wire.output.0,
+    reasoning_tokens: wire.reasoning.0,
+    cache_read_tokens: wire.cache_read.0,
+    cache_write_tokens: wire.cache_write.0,
   }
 }
 
@@ -161,15 +77,14 @@ pub extend Usage with @json.FromJson::{from_json}
 
 ///|
 pub impl ToJson for Usage with fn to_json(self) {
-  Json::object({
-    "input": ToJson::to_json(self.input_tokens),
-    "output": ToJson::to_json(self.output_tokens),
-    "reasoning": ToJson::to_json(self.reasoning_tokens),
-    "cache": Json::object({
-      "read": ToJson::to_json(self.cache_read_tokens),
-      "write": ToJson::to_json(self.cache_write_tokens),
-    }),
-  })
+  let wire : UsageWire_ = {
+    input: WireTokenCount_(self.input_tokens),
+    output: WireTokenCount_(self.output_tokens),
+    reasoning: WireTokenCount_(self.reasoning_tokens),
+    cache_read: WireTokenCount_(self.cache_read_tokens),
+    cache_write: WireTokenCount_(self.cache_write_tokens),
+  }
+  ToJson::to_json(wire)
 }
 
 ///|
@@ -177,12 +92,8 @@ pub extend Usage with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
-  {
-    session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
-    reason: event_part_reason_lens_.get_or_json_decode_error(json, path),
-    cost: event_part_cost_lens_.get_or_json_decode_error(json, path),
-    usage: event_part_tokens_lens_.get_or_json_decode_error(json, path),
-  }
+  let wire : StepFinishWire_ = decode_event_wire_(json, path)
+  { session_id: wire.session_id, reason: wire.reason, cost: wire.cost.0, usage: wire.usage }
 }
 
 ///|
@@ -190,16 +101,14 @@ pub extend StepFinishEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
-  let name = event_error_name_lens_.get_or_json_decode_error(json, path)
-  let data_message = event_error_message_lens_.get(json) catch {
-    @lens.LensError::LensError(_) => name
+  let wire : ErrorWire_ = decode_event_wire_(json, path)
+  let message = try {
+    let detail : ErrorMessageWire_ = @json.from_json(json, path~)
+    detail.message
+  } catch {
+    _ => wire.name
   }
-  {
-    session_id: Some(
-      event_session_id_lens_.get_or_json_decode_error(json, path),
-    ),
-    message: data_message,
-  }
+  { session_id: Some(wire.session_id), message }
 }
 
 ///|
@@ -207,19 +116,16 @@ pub extend ThreadErrorEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
-  let event_type = thread_event_type_lens_.get_or_json_decode_error(json, path)
-  match event_type {
+  let wire : EventTypeWire_ = decode_event_wire_(json, path)
+  match wire.event_type {
     "text" => Text(@json.FromJson::from_json(json, path))
     "reasoning" => Reasoning(@json.FromJson::from_json(json, path))
     "tool_use" => ToolUse(@json.FromJson::from_json(json, path))
     "step_start" => StepStart(@json.FromJson::from_json(json, path))
     "step_finish" => StepFinish(@json.FromJson::from_json(json, path))
     "error" => StreamError(@json.FromJson::from_json(json, path))
-    _ =>
-      raise thread_event_type_lens_.json_decode_error(
-        path,
-        "unsupported thread event type: \{event_type}",
-      )
+    event_type =>
+      @serde.invalid(path.add_key("type"), "unsupported thread event type: \{event_type}")
   }
 }
 
