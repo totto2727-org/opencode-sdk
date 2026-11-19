@@ -8,7 +8,7 @@ async fn wait_for_test_file(path : String) -> Unit {
 }
 
 ///|
-async fn process_is_running(pid : Int) -> Bool {
+async fn process_is_running(pid : Int32) -> Bool {
   let (code, _, _) = @process.collect_output("kill", ["-0", pid.to_string()])
   code == 0
 }
@@ -83,7 +83,7 @@ async test "Exec run - stops the child when cancelled" {
       wait_for_test_file(pid_path)
       let pid = @string.parse_int(
         @fs.read_file(pid_path).text().trim(),
-        base=10,
+        radix=10,
       )
       assert_true(process_is_running(pid))
       task.cancel()
@@ -91,7 +91,8 @@ async test "Exec run - stops the child when cancelled" {
         task.wait()
         false
       } catch {
-        error => @async.is_cancellation_error(error)
+        @async.WaitedTaskAlreadyCancelled => true
+        error => raise error
       }
       assert_true(cancelled)
       assert_false(process_is_running(pid))

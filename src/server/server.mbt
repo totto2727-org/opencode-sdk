@@ -15,40 +15,42 @@ let startup_poll_interval_ms = 10
 /// When `port` is zero, OpenCode selects an available port. `timeout_ms`
 /// bounds the readiness wait, and `config` is serialized to
 /// `OPENCODE_CONFIG_CONTENT`.
+#derive(Debug)
 pub struct ServerOptions {
   hostname : String
-  port : Int
-  timeout_ms : Int
+  port : Int32
+  timeout_ms : Int32
   config : Json
-} derive(Debug)
+}
 
 ///|
 /// Construct server options.
 pub fn ServerOptions::ServerOptions(
-  hostname? : String = "127.0.0.1",
-  port? : Int = 0,
-  timeout_ms? : Int = 5000,
-  config? : Json = Json::empty_object(),
+  hostname~ : String = "127.0.0.1",
+  port~ : Int32 = 0,
+  timeout_ms~ : Int32 = 5000,
+  config~ : Json = Json::empty_object(),
 ) -> ServerOptions {
   // OpenCode treats port 0 as automatic port selection:
   // https://github.com/anomalyco/opencode/blob/7565e03536d19e850f9996c407f9bf5e932b5f7a/packages/opencode/src/server/server.ts#L117-L122
-  { hostname, port, timeout_ms, config }
+  { hostname, port, timeout_ms, config, }
 }
 
 ///|
 /// Failures that can occur while starting or stopping an OpenCode server.
+#derive(Debug)
 pub suberror ServerError {
   /// The server process or its log files could not be created.
   StartFailed(String)
   /// The server did not announce readiness before the configured timeout.
-  StartTimeout(timeout_ms~ : Int, output~ : String)
+  StartTimeout(timeout_ms~ : Int32, output~ : String)
   /// The server emitted the readiness prefix without a valid HTTP URL.
   MalformedOutput(line~ : String)
   /// The server exited before announcing readiness.
-  ServerExited(code~ : Int, output~ : String)
+  ServerExited(code~ : Int32, output~ : String)
   /// A started server could not be stopped or cleaned up.
   CleanupFailed(String)
-} derive(Debug)
+}
 
 ///|
 /// A running OpenCode server owned by the task group passed at creation.
@@ -129,7 +131,7 @@ async fn stop_process(process : @process.Process) -> Unit raise ServerError {
   // Adapted from the OpenCode TypeScript SDK process-stop behavior:
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/process.ts#L3-L12
   let process_result = process.try_wait() catch {
-    err if @async.is_cancellation_error(err) => None
+    @async.WaitedTaskAlreadyCancelled => None
     err =>
       raise CleanupFailed(
         "failed to inspect server process: \{@debug.to_string(err)}",
@@ -139,7 +141,7 @@ async fn stop_process(process : @process.Process) -> Unit raise ServerError {
     process.cancel()
   }
   (process.wait() |> ignore) catch {
-    err if @async.is_cancellation_error(err) => ()
+    @async.WaitedTaskAlreadyCancelled => ()
     err =>
       raise CleanupFailed(
         "failed to wait for server process: \{@debug.to_string(err)}",
@@ -161,7 +163,7 @@ async fn wait_for_server(
   process : @process.Process,
   stdout_path : String,
   stderr_path : String,
-  timeout_ms : Int,
+  timeout_ms : Int32,
 ) -> String raise ServerError {
   // Adapted from the OpenCode TypeScript SDK timeout, output, and early-exit
   // handling:
@@ -190,12 +192,7 @@ async fn wait_for_server(
       let output = combined_output(stdout_path, stderr_path)
       raise StartTimeout(timeout_ms~, output~)
     }
-    @async.sleep(startup_poll_interval_ms) catch {
-      err =>
-        raise StartFailed(
-          "startup wait was interrupted: \{@debug.to_string(err)}",
-        )
-    }
+    @async.sleep(startup_poll_interval_ms)
     elapsed_ms = elapsed_ms + startup_poll_interval_ms
   }
 }
@@ -260,14 +257,21 @@ async fn[X] create_opencode_server_with_command(
       )
     }
   }
-  errdefer cleanup_start_failure(process, log_dir)
+  errdefer (@async.protect_from_cancel(async fn() {
+    cleanup_start_failure(process, log_dir)
+  }) catch {
+    err =>
+      raise CleanupFailed(
+        "failed to clean up server startup: \{@debug.to_string(err)}",
+      )
+  })
   let url = wait_for_server(
     process,
     stdout_path,
     stderr_path,
     options.timeout_ms,
   )
-  { url, process, log_dir, closed: false }
+  { url, process, log_dir, closed: false, }
 }
 
 ///|
@@ -291,9 +295,9 @@ async fn[X] create_opencode_server_with_command(
 /// ```
 pub async fn[X] create_opencode_server(
   group : @async.TaskGroup[X],
-  options? : ServerOptions = ServerOptions::ServerOptions(),
-  command? : String = "opencode",
-  extra_env? : Map[String, String] = Map([]),
+  options~ : ServerOptions = ServerOptions::ServerOptions(),
+  command~ : String = "opencode",
+  extra_env~ : Map[String, String] = Map([]),
 ) -> Server raise ServerError {
   // Copied from the OpenCode TypeScript SDK executable selection:
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L32-L40

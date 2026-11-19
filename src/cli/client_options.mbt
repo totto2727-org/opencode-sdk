@@ -11,11 +11,15 @@ pub type ConfigObject = Map[String, Json]
 /// `executable_path_override` selects a specific OpenCode executable. `env`
 /// replaces inherited environment variables when present, while `config` is
 /// encoded as JSON and sent through `OPENCODE_CONFIG_CONTENT`.
+#derive(Eq)
 pub struct ClientOptions {
   executable_path_override : @path.Path?
   config : ConfigObject?
   env : Map[String, String]?
-} derive(Eq)
+}
+
+///|
+pub extend ClientOptions with Eq::{not_equal, equal}
 
 ///|
 /// Construct client-wide OpenCode CLI options.
@@ -24,5 +28,5 @@ pub fn ClientOptions::ClientOptions(
   config? : ConfigObject,
   env? : Map[String, String],
 ) -> ClientOptions {
-  { executable_path_override, config, env }
+  { executable_path_override, config, env, }
 }

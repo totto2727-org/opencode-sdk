@@ -25,21 +25,21 @@ let event_part_status_lens_ : @lens.Lens[ToolUseStatus] = @lens.root()
   .custom("status")
 
 ///|
-let usage_input_lens_ : @lens.Lens[Int] = @lens.root().int("input")
+let usage_input_lens_ : @lens.Lens[Int32] = @lens.root().int("input")
 
 ///|
-let usage_output_lens_ : @lens.Lens[Int] = @lens.root().int("output")
+let usage_output_lens_ : @lens.Lens[Int32] = @lens.root().int("output")
 
 ///|
-let usage_reasoning_lens_ : @lens.Lens[Int] = @lens.root().int("reasoning")
+let usage_reasoning_lens_ : @lens.Lens[Int32] = @lens.root().int("reasoning")
 
 ///|
-let usage_cache_read_lens_ : @lens.Lens[Int] = @lens.root()
+let usage_cache_read_lens_ : @lens.Lens[Int32] = @lens.root()
   .object("cache")
   .int("read")
 
 ///|
-let usage_cache_write_lens_ : @lens.Lens[Int] = @lens.root()
+let usage_cache_write_lens_ : @lens.Lens[Int32] = @lens.root()
   .object("cache")
   .int("write")
 
@@ -81,12 +81,18 @@ pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
 }
 
 ///|
+pub extend TextEvent with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
   {
     session_id: event_session_id_lens_.get_or_json_decode_error(json, path),
     text: event_part_text_lens_.get_or_json_decode_error(json, path),
   }
 }
+
+///|
+pub extend ReasoningEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
@@ -101,12 +107,18 @@ pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
 }
 
 ///|
+pub extend ToolUseStatus with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for ToolUseStatus with fn to_json(self) {
   match self {
-    Completed => "completed".to_json()
-    Failed => "error".to_json()
+    Completed => ToJson::to_json("completed")
+    Failed => ToJson::to_json("error")
   }
 }
+
+///|
+pub extend ToolUseStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
@@ -119,9 +131,15 @@ pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
 }
 
 ///|
+pub extend ToolUseEvent with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
-  { session_id: event_session_id_lens_.get_or_json_decode_error(json, path) }
+  { session_id: event_session_id_lens_.get_or_json_decode_error(json, path), }
 }
+
+///|
+pub extend StepStartEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
@@ -139,17 +157,23 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
 }
 
 ///|
+pub extend Usage with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for Usage with fn to_json(self) {
   Json::object({
-    "input": self.input_tokens.to_json(),
-    "output": self.output_tokens.to_json(),
-    "reasoning": self.reasoning_tokens.to_json(),
+    "input": ToJson::to_json(self.input_tokens),
+    "output": ToJson::to_json(self.output_tokens),
+    "reasoning": ToJson::to_json(self.reasoning_tokens),
     "cache": Json::object({
-      "read": self.cache_read_tokens.to_json(),
-      "write": self.cache_write_tokens.to_json(),
+      "read": ToJson::to_json(self.cache_read_tokens),
+      "write": ToJson::to_json(self.cache_write_tokens),
     }),
   })
 }
+
+///|
+pub extend Usage with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
@@ -160,6 +184,9 @@ pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
     usage: event_part_tokens_lens_.get_or_json_decode_error(json, path),
   }
 }
+
+///|
+pub extend StepFinishEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
@@ -174,6 +201,9 @@ pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
     message: data_message,
   }
 }
+
+///|
+pub extend ThreadErrorEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
@@ -192,6 +222,9 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
       )
   }
 }
+
+///|
+pub extend ThreadEvent with @json.FromJson::{from_json}
 
 ///|
 /// Return the session identifier carried by an event, when present.

@@ -24,7 +24,7 @@ fn server_args(options : ServerOptions) -> Array[String] {
     "--port=\{options.port}",
   ]
   let config : ServerConfig = @json.from_json(options.config) catch {
-    _ => { log_level: None }
+    _ => { log_level: None, }
   }
   match config.log_level {
     Some(log_level) => args.push("--log-level=\{log_level}")

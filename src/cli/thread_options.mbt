@@ -5,6 +5,7 @@
 /// corresponding OpenCode CLI options. When `thinking` is true, the executor
 /// adds `--thinking` so reasoning events are delivered when OpenCode emits
 /// them.
+#derive(Eq)
 pub struct ThreadOptions {
   model : String?
   agent : String?
@@ -12,7 +13,10 @@ pub struct ThreadOptions {
   variant : String?
   title : String?
   thinking : Bool
-} derive(Eq)
+}
+
+///|
+pub extend ThreadOptions with Eq::{not_equal, equal}
 
 ///|
 /// Construct optional OpenCode session settings.
@@ -22,7 +26,7 @@ pub fn ThreadOptions::ThreadOptions(
   working_directory? : @path.Path,
   variant? : String,
   title? : String,
-  thinking? : Bool = false,
+  thinking~ : Bool = false,
 ) -> ThreadOptions {
-  { model, agent, working_directory, variant, title, thinking }
+  { model, agent, working_directory, variant, title, thinking, }
 }
