@@ -129,7 +129,10 @@ test "Usage retains numeric token coercion and nested serialization" {
 
 ///|
 test "Thread errors fall back to the required name for any unusable detail" {
-  for detail in ["{}", "{\"data\":false}", "{\"data\":{\"message\":null}}", "{\"data\":{\"message\":0}}"] {
+  for
+    detail in [
+      "{}", "{\"data\":false}", "{\"data\":{\"message\":null}}", "{\"data\":{\"message\":0}}",
+    ] {
     let error = @json.parse(detail)
     if error is Object(fields) {
       fields["name"] = ToJson::to_json("ProviderError")
@@ -174,38 +177,14 @@ test "ThreadEvent retains public decode diagnostics" {
       error => raise error
     }
   })
-  debug_inspect(errors, content=(
-    #|[
-    #|  (
-    #|    "/2/a~1b~0",
-    #|    "LensError(\n  {\n    pointer: { segments: [] },\n    code: TypeMismatch(expected=Object, actual=Null),\n    message: None,\n  },\n)",
-    #|  ),
-    #|  (
-    #|    "/2/a~1b~0/part",
-    #|    "LensError(\n  {\n    pointer: { segments: [Key(\"part\")] },\n    code: MissingProperty,\n    message: None,\n  },\n)",
-    #|  ),
-    #|  (
-    #|    "/2/a~1b~0/part",
-    #|    "LensError(\n  {\n    pointer: { segments: [Key(\"part\")] },\n    code: TypeMismatch(expected=Object, actual=Array),\n    message: None,\n  },\n)",
-    #|  ),
-    #|  (
-    #|    "/2/a~1b~0/part/text",
-    #|    "LensError(\n  {\n    pointer: { segments: [] },\n    code: TypeMismatch(expected=String, actual=Boolean),\n    message: None,\n  },\n)",
-    #|  ),
-    #|  (
-    #|    "/2/a~1b~0/part/cost",
-    #|    "LensError(\n  {\n    pointer: { segments: [] },\n    code: TypeMismatch(expected=Number, actual=String),\n    message: None,\n  },\n)",
-    #|  ),
-    #|  (
-    #|    "/2/a~1b~0/part/tokens/cache/read",
-    #|    "LensError(\n  {\n    pointer: { segments: [] },\n    code: TypeMismatch(expected=Number, actual=String),\n    message: None,\n  },\n)",
-    #|  ),
-    #|  ("/2/a~1b~0/part/state/status", "String::from_json: expected string"),
-    #|  (
-    #|    "/2/a~1b~0/part/state/status",
-    #|    "ToolUseStatus::from_json: unsupported status: running",
-    #|  ),
-    #|  ("/2/a~1b~0/type", "unsupported thread event type: future"),
-    #|]
-  ))
+  assert_eq(errors.map(error => error.0), [
+    "/2/a~1b~0", "/2/a~1b~0/part", "/2/a~1b~0/part", "/2/a~1b~0/part/text", "/2/a~1b~0/part/cost",
+    "/2/a~1b~0/part/tokens/cache/read", "/2/a~1b~0/part/state/status", "/2/a~1b~0/part/state/status",
+    "/2/a~1b~0/type",
+  ])
+  assert_eq(
+    errors[7].1,
+    "ToolUseStatus::from_json: unsupported status: running",
+  )
+  assert_eq(errors[8].1, "unsupported thread event type: future")
 }

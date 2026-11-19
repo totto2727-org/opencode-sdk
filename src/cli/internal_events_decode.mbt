@@ -1,7 +1,7 @@
 ///|
 pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
-  let wire : TextWire_ = decode_event_wire_(json, path)
-  { session_id: wire.session_id, text: wire.text }
+  let wire : TextWire_ = @json.from_json(json, path~)
+  { session_id: wire.session_id, text: wire.text, }
 }
 
 ///|
@@ -9,8 +9,8 @@ pub extend TextEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
-  let wire : TextWire_ = decode_event_wire_(json, path)
-  { session_id: wire.session_id, text: wire.text }
+  let wire : TextWire_ = @json.from_json(json, path~)
+  { session_id: wire.session_id, text: wire.text, }
 }
 
 ///|
@@ -44,8 +44,13 @@ pub extend ToolUseStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
-  let wire : ToolUseWire_ = decode_event_wire_(json, path)
-  { session_id: wire.session_id, call_id: wire.call_id, tool: wire.tool, status: wire.status }
+  let wire : ToolUseWire_ = @json.from_json(json, path~)
+  {
+    session_id: wire.session_id,
+    call_id: wire.call_id,
+    tool: wire.tool,
+    status: wire.status,
+  }
 }
 
 ///|
@@ -53,8 +58,8 @@ pub extend ToolUseEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
-  let wire : SessionWire_ = decode_event_wire_(json, path)
-  { session_id: wire.session_id }
+  let wire : SessionWire_ = @json.from_json(json, path~)
+  { session_id: wire.session_id, }
 }
 
 ///|
@@ -62,7 +67,7 @@ pub extend StepStartEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
-  let wire : UsageWire_ = decode_event_wire_(json, path)
+  let wire : UsageWire_ = @json.from_json(json, path~)
   {
     input_tokens: wire.input.0,
     output_tokens: wire.output.0,
@@ -92,8 +97,13 @@ pub extend Usage with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
-  let wire : StepFinishWire_ = decode_event_wire_(json, path)
-  { session_id: wire.session_id, reason: wire.reason, cost: wire.cost.0, usage: wire.usage }
+  let wire : StepFinishWire_ = @json.from_json(json, path~)
+  {
+    session_id: wire.session_id,
+    reason: wire.reason,
+    cost: wire.cost.0,
+    usage: wire.usage,
+  }
 }
 
 ///|
@@ -101,14 +111,14 @@ pub extend StepFinishEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
-  let wire : ErrorWire_ = decode_event_wire_(json, path)
+  let wire : ErrorWire_ = @json.from_json(json, path~)
   let message = try {
     let detail : ErrorMessageWire_ = @json.from_json(json, path~)
     detail.message
   } catch {
     _ => wire.name
   }
-  { session_id: Some(wire.session_id), message }
+  { session_id: Some(wire.session_id), message, }
 }
 
 ///|
@@ -116,7 +126,7 @@ pub extend ThreadErrorEvent with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
-  let wire : EventTypeWire_ = decode_event_wire_(json, path)
+  let wire : EventTypeWire_ = @json.from_json(json, path~)
   match wire.event_type {
     "text" => Text(@json.FromJson::from_json(json, path))
     "reasoning" => Reasoning(@json.FromJson::from_json(json, path))
@@ -125,7 +135,10 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
     "step_finish" => StepFinish(@json.FromJson::from_json(json, path))
     "error" => StreamError(@json.FromJson::from_json(json, path))
     event_type =>
-      @serde.invalid(path.add_key("type"), "unsupported thread event type: \{event_type}")
+      @serde.invalid(
+        path.add_key("type"),
+        "unsupported thread event type: \{event_type}",
+      )
   }
 }
 

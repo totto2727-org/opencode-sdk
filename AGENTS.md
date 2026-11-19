@@ -59,10 +59,10 @@ CI runs the shared Nix setup and MoonBit setup/check actions from the monorepo `
 ## Package-specific rules
 
 - Put provider-specific private implementation details in `internal_*.mbt` files. Do not repeat `opencode` in those filenames.
-- Name package-private variables, functions, methods, constants, and private helper types that belong to internal implementation with a trailing underscore, such as `decode_event_wire_` or `session_id_`. Do not prefix identifiers with `internal_` or abbreviate the prefix to `i_`.
+- Name package-private variables, functions, methods, constants, and private helper types that belong to internal implementation with a trailing underscore, such as `WireNumber_` or `session_id_`. Do not prefix identifiers with `internal_` or abbreviate the prefix to `i_`.
 - Keep local variables and function parameters descriptive without forcing a trailing underscore.
 - Keep files that define the shared provider interface focused on common public symbols. Move provider-specific protocol decoding and helper implementations into `internal_*.mbt` files.
-- Use `#custom.serde` on private wire records for static JSON shapes, including fixed nested paths. Keep opaque user configuration as raw JSON, and keep protocol-specific coercion, dispatch, fallback, and legacy diagnostics at the boundary.
+- Use `#custom.serde` on private wire records for static JSON shapes, including fixed nested paths. Keep opaque user configuration as raw JSON, and keep protocol-specific coercion, dispatch, and fallback at the boundary.
 - After changing a wire record, regenerate its adjacent checked-in codec with Serde 0.1.0: `serde-gen src/cli/internal_event_wire.mbt --output src/cli/internal_event_wire.generated.mbt` or `serde-gen src/server/options.mbt --output src/server/options.generated.mbt`, then run `moonfmt -w` on the generated file and `moon fmt` on the package. Do not edit generated code by hand. Downstream builds use the checked-in sources and need only the Serde runtime, not the generator.
 - Keep public API symbols provider-neutral and do not add compatibility aliases or shims for renamed internal symbols.
 - Keep `src/server/**` as a separate provider-specific package boundary; CLI internal naming changes do not alter the Server contract.
